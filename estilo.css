@@ -1,0 +1,262 @@
+/* ============================================================
+   Manuais Xalingo — estilo compartilhado por todas as páginas
+   Cores e tipografia seguem o Manual da Marca (p. 28)
+   ============================================================ */
+:root {
+  --azul: #164194;
+  --amarelo: #E3B500;
+  --vermelho: #E10000;
+  --verde: #60D437;
+  --azul-claro: #00A1FF;
+  --laranja: #FF9200;
+
+  --tinta: #1c2536;
+  --suave: #56607a;
+  --linha: #dfe4ee;
+  --fundo: #ffffff;
+  --fundo-2: #f3f6fb;
+
+  --largura: 40rem;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--tinta);
+  font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+img, svg { max-width: 100%; display: block; }
+
+a { color: var(--azul); }
+a:focus-visible, button:focus-visible {
+  outline: 3px solid var(--azul-claro);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Faixa com as quatro cores do tabuleiro — assinatura visual do site */
+.faixa {
+  height: 8px;
+  background: linear-gradient(90deg,
+    var(--vermelho) 0 25%, var(--verde) 25% 50%,
+    var(--amarelo) 50% 75%, var(--azul) 75% 100%);
+}
+
+.topo, .conteudo, .rodape-inner {
+  width: 100%;
+  max-width: var(--largura);
+  margin: 0 auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* Troque o texto por <img src="logo-xalingo.png"> quando tiver o arquivo do logo */
+.marca {
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  color: var(--azul);
+  text-decoration: none;
+}
+
+.voltar {
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.voltar:hover { text-decoration: underline; }
+
+.conteudo { padding-bottom: 3rem; }
+
+h1 {
+  font-size: clamp(2.1rem, 8vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  color: var(--azul);
+  margin: 1.5rem 0 0.75rem;
+}
+
+h2 {
+  font-size: 1.35rem;
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--azul);
+  margin: 2.5rem 0 0.75rem;
+}
+
+p { margin: 0 0 1rem; }
+
+.intro {
+  font-size: 1.15rem;
+  color: var(--suave);
+  max-width: 34rem;
+}
+
+/* ---------- Página inicial: lista de jogos ---------- */
+.jogos {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--linha);
+}
+
+.jogo {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0.25rem;
+  border-bottom: 1px solid var(--linha);
+  color: var(--tinta);
+  text-decoration: none;
+}
+
+a.jogo:hover .jogo-nome { color: var(--azul); text-decoration: underline; }
+
+.jogo svg { width: 3rem; height: 3rem; }
+
+.jogo-nome { display: block; font-weight: 700; font-size: 1.15rem; }
+.jogo-info { display: block; font-size: 0.9rem; color: var(--suave); }
+
+.jogo-seta {
+  font-size: 1.4rem;
+  color: var(--azul);
+  line-height: 1;
+}
+
+.jogo.em-breve { opacity: 0.55; }
+.jogo.em-breve .jogo-seta { display: none; }
+
+/* ---------- Página de manual ---------- */
+.cabeca-jogo {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+.cabeca-jogo svg { width: 4.5rem; height: 4.5rem; flex-shrink: 0; }
+.cabeca-jogo h1 { margin: 0; }
+
+.ref { font-size: 0.9rem; color: var(--suave); margin-top: 0.35rem; }
+
+.fichas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin: 1.75rem 0 0;
+  padding: 0;
+}
+.fichas div {
+  background: var(--fundo-2);
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+}
+.fichas dt { font-size: 0.8rem; color: var(--suave); }
+.fichas dd { margin: 0; font-weight: 700; font-size: 1.05rem; }
+
+.lista-caixa { padding-left: 1.25rem; margin: 0; }
+.lista-caixa li { margin-bottom: 0.25rem; }
+
+/* Passos numerados (usar só quando a ordem importa) */
+.passos {
+  list-style: none;
+  counter-reset: passo;
+  margin: 0;
+  padding: 0;
+}
+.passos li {
+  counter-increment: passo;
+  position: relative;
+  padding-left: 3rem;
+  margin-bottom: 1.1rem;
+  min-height: 2.1rem;
+}
+.passos li::before {
+  content: counter(passo);
+  position: absolute;
+  left: 0;
+  top: -0.05rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  background: var(--azul);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  display: grid;
+  place-items: center;
+}
+
+/* Regras especiais: bloco com marcador colorido à esquerda */
+.regra {
+  border-left: 5px solid var(--cor, var(--azul));
+  background: var(--fundo-2);
+  border-radius: 0 10px 10px 0;
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.75rem;
+}
+.regra h3 { margin: 0 0 0.25rem; font-size: 1.05rem; font-weight: 700; }
+.regra p { margin: 0; }
+
+.aviso {
+  font-size: 0.95rem;
+  color: var(--suave);
+  border-top: 1px solid var(--linha);
+  padding-top: 1rem;
+  margin-top: 2.5rem;
+}
+
+.btn-imprimir {
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--azul);
+  background: #fff;
+  border: 2px solid var(--azul);
+  border-radius: 999px;
+  padding: 0.55rem 1.2rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+.btn-imprimir:hover { background: var(--fundo-2); }
+
+/* ---------- Rodapé ---------- */
+.rodape {
+  background: var(--fundo-2);
+  border-top: 1px solid var(--linha);
+  padding: 1.5rem 0 calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  font-size: 0.9rem;
+  color: var(--suave);
+}
+.rodape p { margin: 0 0 0.35rem; }
+
+@media (max-width: 420px) {
+  .fichas { grid-template-columns: 1fr 1fr; }
+  .cabeca-jogo svg { width: 3.5rem; height: 3.5rem; }
+}
+
+@media print {
+  .faixa, .voltar, .btn-imprimir, .rodape { display: none; }
+  body { font-size: 11pt; }
+  .regra, .fichas div { background: none; border: 1px solid #ccc; }
+  h2 { break-after: avoid; }
+  .passos li, .regra { break-inside: avoid; }
+}
