@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ludo: como jogar | Xalingo</title>
+  <meta name="description" content="Regras do Ludo Xalingo: preparação, como jogar, capturas e variações.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- "../" porque esta página está dentro de uma pasta -->
+  <link rel="stylesheet" href="../estilo.css">
+</head>
+<body>
+  <div class="faixa" aria-hidden="true"></div>
+
+  <header class="topo">
+    <a class="marca" href="../">Xalingo</a>
+    <a class="voltar" href="../">‹ Todos os jogos</a>
+  </header>
+
+  <main class="conteudo">
+    <div class="cabeca-jogo">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="2" y="2" width="20" height="20" rx="4" fill="#E10000"/>
+        <rect x="26" y="2" width="20" height="20" rx="4" fill="#60D437"/>
+        <rect x="2" y="26" width="20" height="20" rx="4" fill="#164194"/>
+        <rect x="26" y="26" width="20" height="20" rx="4" fill="#E3B500"/>
+      </svg>
+      <div>
+        <h1>Ludo</h1>
+        <!-- TROCAR: referência do produto -->
+        <p class="ref">Ref. 00000</p>
+      </div>
+    </div>
+
+    <!-- TROCAR: conferir com o que está impresso na embalagem -->
+    <dl class="fichas">
+      <div><dt>Jogadores</dt><dd>2 a 4</dd></div>
+      <div><dt>Idade</dt><dd>5+ anos</dd></div>
+      <div><dt>Partida</dt><dd>30 min</dd></div>
+    </dl>
+
+    <h2>O que vem na caixa</h2>
+    <!-- TROCAR: conferir com a composição real do produto -->
+    <ul class="lista-caixa">
+      <li>1 tabuleiro</li>
+      <li>16 peões, 4 de cada cor</li>
+      <li>1 dado</li>
+    </ul>
+
+    <h2>Objetivo</h2>
+    <p>Ser o primeiro a levar os quatro peões da sua cor da base até o centro do tabuleiro.</p>
+
+    <h2>Preparação</h2>
+    <ol class="passos">
+      <li>Cada jogador escolhe uma cor e coloca seus quatro peões na base, o canto grande daquela cor.</li>
+      <li>Todos jogam o dado. Quem tirar o número mais alto começa, e a vez segue no sentido horário.</li>
+    </ol>
+
+    <h2>Como jogar</h2>
+    <ol class="passos">
+      <li>Na sua vez, jogue o dado.</li>
+      <li>Para tirar um peão da base, você precisa tirar 6. Ele vai para a casa de saída da sua cor, a casa colorida logo à frente da base.</li>
+      <li>Com peões em jogo, escolha um deles e ande o número de casas que o dado mostrou, no sentido horário. Se não houver jogada possível, passe a vez.</li>
+      <li>Tirou 6? Depois de mover, jogue o dado mais uma vez.</li>
+      <li>Depois de dar a volta completa no tabuleiro, o peão entra na reta final da sua cor e segue até o centro.</li>
+    </ol>
+
+    <h2>Regras especiais</h2>
+    <div class="regra" style="--cor: var(--vermelho)">
+      <h3>Captura</h3>
+      <p>Se o seu peão parar exatamente na casa de um peão adversário, o adversário volta para a base e precisa tirar 6 de novo para sair.</p>
+    </div>
+    <div class="regra" style="--cor: var(--verde)">
+      <!-- TROCAR: ajustar se o tabuleiro tiver casas com estrela ou outro símbolo de proteção -->
+      <h3>Casas seguras</h3>
+      <p>Um peão na casa de saída de qualquer cor não pode ser capturado.</p>
+    </div>
+    <div class="regra" style="--cor: var(--amarelo)">
+      <h3>Chegada ao centro</h3>
+      <p>Para entrar no centro, é preciso tirar o número exato de casas que faltam. Se o dado passar do necessário, mova outro peão ou passe a vez.</p>
+    </div>
+
+    <h2>Fim do jogo</h2>
+    <p>Vence quem colocar os quatro peões no centro primeiro. Se quiserem, os outros jogadores continuam para decidir o segundo e o terceiro lugares.</p>
+
+    <h2>Variações para combinar antes de começar</h2>
+    <div class="regra" style="--cor: var(--azul-claro)">
+      <h3>Saída com 1 ou 6</h3>
+      <p>O peão também pode sair da base quando o dado mostrar 1. Deixa a partida mais rápida, bom para crianças menores.</p>
+    </div>
+    <div class="regra" style="--cor: var(--laranja)">
+      <h3>Três 6 seguidos</h3>
+      <p>Quem tirar 6 três vezes na mesma vez perde a jogada e não move o peão da última jogada.</p>
+    </div>
+    <div class="regra" style="--cor: var(--azul)">
+      <h3>Barreira</h3>
+      <p>Dois peões da mesma cor na mesma casa formam uma barreira que nenhum adversário pode ultrapassar nem capturar.</p>
+    </div>
+
+    <p class="aviso">Atenção: contém peças pequenas que podem ser engolidas. Não recomendado para crianças menores de 3 anos.</p>
+    <button class="btn-imprimir" type="button" onclick="window.print()">Imprimir regras</button>
+  </main>
+
+  <footer class="rodape">
+    <div class="rodape-inner">
+      <p>Xalingo Brinquedos, Santa Cruz do Sul, RS</p>
+      <p><a href="https://www.xalingo.com.br">xalingo.com.br</a></p>
+    </div>
+  </footer>
+</body>
+</html>
