@@ -57,7 +57,7 @@ a{color:inherit}
 .hint button:hover{border-color:var(--azul)}
 .drop{position:absolute;left:0;right:0;top:70px;background:#fff;border-radius:16px;box-shadow:0 22px 50px rgba(22,65,148,.2);display:none;z-index:15;max-height:min(460px,60vh);overflow-y:auto;border:1px solid #e6ebf4}
 .drop.on{display:block}
-.res{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #f0f2f7;cursor:pointer}
+.res{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #f0f2f7;cursor:pointer;color:inherit;text-decoration:none}
 .res:last-child{border-bottom:none}
 .res:hover,.res.sel{background:#f5f8fe}
 .res .th{flex:none;width:54px;height:54px;border-radius:12px;background:var(--tbg);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--azul)}
@@ -78,7 +78,12 @@ a{color:inherit}
 .art.is3d{height:430px}
 .art.is3d::before{content:"";position:absolute;inset:6% 4% 0;border-radius:50%;background:radial-gradient(closest-side,#e7effc 0,#eef4fd 55%,rgba(238,244,253,0) 100%);z-index:0}
 .art canvas{position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%}
-.art.gif img{position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%;object-fit:contain}
+.art.gif img{position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .8s ease,transform 1s cubic-bezier(.45,0,.2,1)}
+.art.gif img.on{opacity:1}
+.art .cap{position:absolute;left:50%;bottom:4px;z-index:2;transform:translateX(-50%);background:#fff;border:1px solid #e3e8f2;border-radius:99px;padding:5px 12px;font:700 12px var(--f);color:var(--azul);white-space:nowrap;box-shadow:0 4px 14px rgba(20,40,90,.08);transition:opacity .4s}
+.art .cap b{color:var(--verm);font-weight:800;margin-right:6px}
+.art .cap.off{opacity:0}
+@media (prefers-reduced-motion: reduce){.art.gif img{transition:none}}
 .hero .wrap>*{min-width:0}
 .step{position:absolute;z-index:2;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;white-space:nowrap;background:#fff;border:1.5px solid #dfe6f3;border-radius:99px;padding:6px 15px 6px 6px;font:700 13px var(--f);color:var(--azul);box-shadow:0 10px 24px rgba(22,65,148,.12);transition:opacity .3s}
 .step .n{width:26px;height:26px;border-radius:50%;background:var(--azul);color:#fff;display:flex;align-items:center;justify-content:center;font:800 12.5px var(--f)}
@@ -453,7 +458,11 @@ const IC2 = {
 };
 const svgIc2 = k => `<svg class="ico2" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC2[k]}</svg>`;
 
-const HERO_GIF="img/navio-montagem.gif";
+/* animações do topo, tocadas em sequência e em loop (ms = duração total do GIF; os dois terminam na base vazia, que é onde acontece a troca) */
+const HERO_GIFS=[
+  {src:"img/navio-montagem.gif",  ms:6400, ref:"09898", nome:"Navio dos Piratas", w:640, h:513, base:[315,399,431]},
+  {src:"img/castelo-montagem.gif",ms:7850, ref:"09709", nome:"Castelo Medieval",  w:640, h:507, base:[320,360,506]},
+];   /* base = centro x, centro y e largura da base redonda no GIF (px), para uma base se encaixar na outra na troca */
 /* ===== Motion 3D do topo: um playground se montando, passo a passo ===== */
 function montagem3D(){
   const box=document.getElementById("art");
@@ -658,10 +667,10 @@ function drop(qv){
   const tudo=busca(qv), r=tudo.slice(0,8); selIdx=-1;
   if(r.length){
     d.innerHTML = r.map((p,i)=>{ const V=VERTS[p[2]];
-      return `<div class="res" data-c="${p[0]}" style="--tbg:${V.bg};--tbar:${V.bar}">
+      return `<a class="res" href="${urlMan(p[0])}" data-c="${p[0]}" style="--tbg:${V.bg};--tbar:${V.bar}">
         <div class="th">${temFoto(p[0])?`<img src="${fotoSrc(p[0])}" alt="">`:svgIc(p[2])}</div>
         <div class="tx"><div class="r">${fmtRef(p[0])}</div><div class="n">${p[1]}</div><div class="v">${V.nome} · ${p[3]}</div></div>
-        <span class="go2">Manual</span></div>`; }).join("")
+        <span class="go2">Manual</span></a>`; }).join("")
       + (tudo.length>8?`<button class="all" onclick="verTodos()">Ver todos os resultados</button>`:'');
   } else {
     const cat=busca(qv, CATALOGO).slice(0,3);
@@ -670,9 +679,10 @@ function drop(qv){
       : `Nenhum produto encontrado para “${qv}”.<small>Confira a ref. na lateral da caixa.</small>`}</div>`;
   }
   d.classList.add("on");
-  d.querySelectorAll(".res").forEach(e=>e.onclick=()=>abrir(e.dataset.c));
+  d.querySelectorAll(".res").forEach(e=>e.onclick=ev=>{ if(ev.ctrlKey||ev.metaKey||ev.shiftKey||ev.button) return; ev.preventDefault(); abrir(e.dataset.c); });
 }
-function abrir(c){ const p=PRODUTOS.find(x=>x[0]===c); if(!p) return; $("#drop").classList.remove("on"); location.hash=`#/v/${p[2]}/${c}`; }
+/* busca: ao escolher um produto, abre direto o manual dele (antes levava para a tela da linha) */
+function abrir(c){ const p=PRODUTOS.find(x=>x[0]===c); if(!p) return; $("#drop").classList.remove("on"); location.href=urlMan(c); }
 let buscaGlobal="";
 function verTodos(v){ const r=busca(v!==undefined?v:q.value); if(!r.length) return; buscaGlobal=v!==undefined?v:q.value; vAtual=null; location.hash=`#/v/${r[0][2]}`; }
 
@@ -758,10 +768,43 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape") fechaVideo(); });
 window.addEventListener("hashchange",rota);
 arte(); rota(); leGitHub();
 /* motion 3D do topo (se o navegador não tiver WebGL, ficam os ícones) */
-/* animação do topo: o Navio dos Piratas (ref. 0989.8) sendo montado sobre a base azul (GIF; o 3D antigo, montagem3D, ficou sem uso) */
+/* animação do topo: Navio dos Piratas (ref. 0989.8) → Castelo Medieval (ref. 0970.9) → Navio… em loop.
+   Cada GIF é reiniciado do 1º quadro quando entra (URL nova a partir do arquivo já baixado), e a troca é feita
+   no fim dele, quando a base está vazia: a base de um se funde na base do outro. O 3D antigo (montagem3D) segue sem uso. */
 (function(){ const box=document.getElementById("art"); if(!box) return;
   box.classList.add("is3d","gif");
-  box.innerHTML='<img src="'+HERO_GIF+'" alt="Navio dos Piratas sendo montado, passo a passo" width="640" height="513">'; })();
+  const G=HERO_GIFS, blob={}, cap=document.createElement("div"); cap.className="cap";
+  box.innerHTML=""; box.append(cap);
+  const urlDe=g=> blob[g.src] ? URL.createObjectURL(blob[g.src]) : g.src+(g.src.includes("?")?"&":"?")+"r="+Date.now();
+  const baixa=g=> blob[g.src]||!window.fetch ? Promise.resolve() :
+    fetch(g.src).then(r=>r.ok?r.blob():null).then(b=>{ if(b) blob[g.src]=b; }).catch(()=>{});
+  let i=0, atual=null, tm=0;
+  function mostra(){
+    const g=G[i], img=new Image(), u=urlDe(g);
+    img.width=g.w; img.height=g.h; img.alt=g.nome+" (ref. "+fmtRef(g.ref)+") sendo montado, passo a passo";
+    img.onload=()=>{
+      const velho=atual, gv=velho&&velho._g;
+      /* transform que leva a base do GIF "de" para cima da base do GIF "para" (tamanho real na tela, object-fit:contain) */
+      const enc=(de,para)=>{ const W=box.clientWidth, H=box.clientHeight, ka=Math.min(W/de.w,H/de.h), kb=Math.min(W/para.w,H/para.h);
+        const s=(para.base[2]*kb)/(de.base[2]*ka), ax=(de.base[0]-de.w/2)*ka, ay=(de.base[1]-de.h/2)*ka, bx=(para.base[0]-para.w/2)*kb, by=(para.base[1]-para.h/2)*kb;
+        return `translate(${(bx-s*ax).toFixed(1)}px,${(by-s*ay).toFixed(1)}px) scale(${s.toFixed(4)})`; };
+      img._g=g; box.prepend(img);
+      if(gv && gv!==g){ img.style.transition="none"; img.style.transform=enc(g,gv); void img.offsetWidth; img.style.transition=""; img.style.transform="none"; }
+      void img.offsetWidth; img.classList.add("on");
+      cap.classList.add("off"); setTimeout(()=>{ cap.innerHTML="<b>"+fmtRef(g.ref)+"</b>"+g.nome; cap.classList.remove("off"); },250);
+      atual=img;
+      if(velho){ if(gv!==g) velho.style.transform=enc(gv,g); velho.classList.remove("on"); setTimeout(()=>{ const s=velho.src; velho.remove(); if(s.startsWith("blob:")) URL.revokeObjectURL(s); },1100); }
+      clearTimeout(tm);
+      if(G.length>1) tm=setTimeout(()=>{ i=(i+1)%G.length; baixa(G[i]).then(mostra); }, g.ms);
+    };
+    img.onerror=()=>{ if(G.length>1){ i=(i+1)%G.length; tm=setTimeout(mostra,400); } };
+    img.src=u;
+  }
+  baixa(G[0]).then(mostra);
+  G.slice(1).reduce((p,g)=>p.then(()=>baixa(g)), new Promise(r=>setTimeout(r,1500)));   /* o castelo vem depois, sem atrasar o topo */
+  /* aba em segundo plano: o navegador pausa os GIFs; ao voltar, recomeça o atual do zero para não perder o sincronismo */
+  document.addEventListener("visibilitychange",()=>{ if(document.hidden){ clearTimeout(tm); } else if(atual){ mostra(); } });
+})();
 </script>
 </body>
 </html>
