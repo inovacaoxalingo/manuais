@@ -703,7 +703,7 @@ function card(p){
     </div>
     <div class="cb"><div class="nm">${nome}</div><div class="sb">${s}</div>
       <div class="acts">
-        <a class="b-man" href="${urlMan(c)}" target="_blank" rel="noopener">${ICON_DOC}Abrir manual</a>
+        <a class="b-man" href="${urlMan(c)}">${ICON_DOC}Abrir manual</a>
         ${vd?`<a class="b-ic b-yt" href="${vd}" target="_blank" rel="noopener" title="Vídeo de montagem" aria-label="Vídeo de montagem" onclick="return video(event,'${c}')"><i></i></a>`:''}
         <button class="b-ic" title="Copiar link deste produto" aria-label="Copiar link" onclick="copia('${c}')">${ICON_LINK}</button>
       </div></div>
