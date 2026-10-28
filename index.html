@@ -231,7 +231,9 @@ main.list{padding-top:6px;padding-bottom:60px}
 #chips2 .chip{border-style:dashed}
 #chips2 .chip[aria-pressed="true"]{border-style:solid}
 .tema-h{display:flex;align-items:center;gap:12px;margin:18px 0 10px;flex-wrap:wrap}
-.tema-h img{height:38px;border-radius:8px;display:block}
+.tema-h .lg{display:grid;place-items:center;height:64px;padding:6px 12px;border-radius:12px;background:#fff;border:1px solid var(--line)}
+.tema-h .lg.esc{background:#1b2540;border-color:#1b2540}
+.tema-h img{max-height:52px;max-width:220px;display:block}
 .tema-h h3{font:800 16px var(--f);color:var(--ink);margin:0}
 .tema-h small{font:600 12.5px var(--f);color:var(--muted)}
 .sub-h i{width:5px;height:24px;border-radius:3px;background:var(--c-bar)}
@@ -412,8 +414,23 @@ const FOTO_SRC = {};
    TEMAS_INFO = nome completo e logo de cada tema (img/temas/); sem logo, aparece só o nome. */
 const TEMAS_SUB = "Blocos de Montar";
 const TEMAS_INFO = {
-  "Quadrante X": {completo:"Quadrante X – A última fronteira", logo:"img/temas/quadrante-x.webp"},
-};     /* só na versão de visualização (no site as fotos ficam na pasta fotos/) */
+  "Criativos":              {completo:"Blocos Criativos",                 logo:"img/temas/criativos.webp"},
+  "Mundo Encantado":        {completo:"Mundo Encantado",                  logo:"img/temas/mundo-encantado.webp"},
+  "Fadas":                  {completo:"Fadas",                            logo:"img/temas/fadas.webp"},
+  "Piratas":                {completo:"Piratas",                          logo:"img/temas/piratas.webp"},
+  "Fazenda":                {completo:"Fazenda",                          logo:"img/temas/fazenda.webp"},
+  "Dino'Saga":              {completo:"Dino'Saga",                        logo:"img/temas/dino-saga.webp"},
+  "Cidade em Obras":        {completo:"Cidade em Obras",                  logo:"img/temas/cidade-em-obras.webp"},
+  "Super Máquina na Pista": {completo:"Super Máquina na Pista",           logo:"img/temas/super-maquina.webp"},
+  "Defensores da Ordem":    {completo:"Defensores da Ordem",              logo:"img/temas/defensores-da-ordem.webp"},
+  "Operações Especiais":    {completo:"Operações Especiais",              logo:"img/temas/operacoes-especiais.webp"},
+  "Bombeiros":              {completo:"Bombeiros",                        logo:"img/temas/bombeiros.webp"},
+  "Aliança Justiça e Paz":  {completo:"Aliança Justiça e Paz",            logo:"img/temas/alianca-justica-e-paz.webp"},
+  "Quadrante X":            {completo:"Quadrante X – A última fronteira", logo:"img/temas/quadrante-x.webp", escuro:true},
+  "Lançadores":             {completo:"Lançadores",                       logo:"img/temas/lancadores.webp", escuro:true},
+};
+/* nomes do catálogo que são o mesmo tema */
+const TEMAS_ALIAS = {"Super Máquina":"Super Máquina na Pista", "Defensores da Ordem Polícia":"Defensores da Ordem"};     /* só na versão de visualização (no site as fotos ficam na pasta fotos/) */
 
 const VERTS = {
   B:{nome:"Blocos de Montar", num:"01", bar:"#293b7f", bg:"#e6e3f0",
@@ -651,7 +668,7 @@ const urlMan = c => MANUAL_LINK[c] || "manuais/"+c+"/index.html";
 /* tema dos blocos: "BL Quadrante X – Nave Espacial – 106 peças" -> "Quadrante X"; o nome fica "Nave Espacial – 106 peças" */
 const TEMA_CANON = {};
 CATALOGO.forEach(p=>{ const m=p[3]===TEMAS_SUB && p[1].match(/^BL\s+(.+?)\s+–\s+/); if(m){ const k=norm(m[1]); if(!TEMA_CANON[k]||/[^\x00-\x7f]/.test(m[1])) TEMA_CANON[k]=m[1]; } });
-const temaDe = p => { if(p[3]!==TEMAS_SUB) return null; const m=p[1].match(/^BL\s+(.+?)\s+–\s+/); return m ? TEMA_CANON[norm(m[1])] : "Outros"; };
+const temaDe = p => { if(p[3]!==TEMAS_SUB) return null; const m=p[1].match(/^BL\s+(.+?)\s+–\s+/); if(!m) return "Outros"; const t=TEMA_CANON[norm(m[1])]; return TEMAS_ALIAS[t]||t; };
 const nomeCurto = p => temaDe(p) && temaDe(p)!=="Outros" ? p[1].replace(/^BL\s+.+?\s+–\s+/,"") : p[1];
 function busca(q, lista=PRODUTOS){
   q=q.trim(); if(!q) return lista;
@@ -757,7 +774,7 @@ function lista(k){
     if(s!==TEMAS_SUB) return `<div class="sub-h"><i></i><h2>${s}</h2></div><div class="grid">${g.map(card).join("")}</div>`;
     const ts=[...new Set(g.map(temaDe))].sort((a,b)=>(a==="Outros")-(b==="Outros")||a.localeCompare(b,"pt"));
     return `<div class="sub-h"><i></i><h2>${s}</h2></div>`+ts.map(t=>{ const I=TEMAS_INFO[t]||{}, gg=g.filter(p=>temaDe(p)===t);
-      return `<div class="tema-h">${I.logo?`<img src="${I.logo}" alt="${I.completo||t}">`:''}<h3>${I.completo||t}</h3><small>${gg.length} ${gg.length>1?"manuais":"manual"}</small></div><div class="grid">${gg.map(card).join("")}</div>`; }).join(""); }).join("");
+      return `<div class="tema-h">${I.logo?`<span class="lg${I.escuro?' esc':''}"><img src="${I.logo}" alt="${I.completo||t}"></span>`:''}<h3>${I.completo||t}</h3><small>${gg.length} ${gg.length>1?"manuais":"manual"}</small></div><div class="grid">${gg.map(card).join("")}</div>`; }).join(""); }).join("");
 }
 
 /* ======================= vídeo / link ======================= */
