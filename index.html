@@ -227,6 +227,13 @@ a{color:inherit}
 .chip[aria-pressed="true"]{background:var(--azul);border-color:var(--azul);color:#fff}
 main.list{padding-top:6px;padding-bottom:60px}
 .sub-h{display:flex;align-items:center;gap:10px;margin:26px 0 12px}
+#chips2{margin-top:6px}
+#chips2 .chip{border-style:dashed}
+#chips2 .chip[aria-pressed="true"]{border-style:solid}
+.tema-h{display:flex;align-items:center;gap:12px;margin:18px 0 10px;flex-wrap:wrap}
+.tema-h img{height:38px;border-radius:8px;display:block}
+.tema-h h3{font:800 16px var(--f);color:var(--ink);margin:0}
+.tema-h small{font:600 12.5px var(--f);color:var(--muted)}
 .sub-h i{width:5px;height:24px;border-radius:3px;background:var(--c-bar)}
 .sub-h h2{font:800 20px var(--f);color:var(--azul);letter-spacing:-.01em}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:14px}
@@ -367,6 +374,7 @@ footer .sp{flex:1}
       <label class="tg hidden" id="tgVid"><input type="checkbox" id="fVid">Com vídeo</label>
     </div>
     <div class="row"><div class="chips" id="chips"></div></div>
+    <div class="row"><div class="chips" id="chips2"></div></div>
   </div></div>
   <main class="wrap list" id="lista"></main>
 </div>
@@ -393,13 +401,19 @@ footer .sp{flex:1}
    As listas abaixo são a reserva, usada se a leitura automática falhar
    (ou ao abrir o arquivo direto no computador).                         */
 const REPO    = "inovacaoxalingo/manuais";               /* "dono/repositorio" — preencha se usar domínio próprio (ex.: "inovacaoxalingo/manuais") */
-const MANUAIS = ["09898", "09709", "09987", "09998", "10054", "09355", "10009", "10043", "09809", "10032", "10087"];
-const FOTOS   = ["10032", "09809", "10043", "10009", "09898", "09709", "09998", "09355", "09356", "09666", "09776", "09865", "09943", "09954", "09976", "09987", "10054", "10087", "10209", "10221", "20609", "20610", "20621", "52821"];
+const MANUAIS = ["09898", "09709", "09987", "09998", "10054", "09355", "10009", "10043", "09809", "10032", "10087", "28509"];
+const FOTOS   = ["10032", "09809", "10043", "10009", "09898", "09709", "09998", "09355", "09356", "09666", "09776", "09865", "09943", "09954", "09976", "09987", "10054", "10087", "10209", "10221", "20609", "20610", "20621", "52821", "28509"];
 const MANUAL_LINK = {"65543":"https://inovacaoxalingo.github.io/manuais/ludo/", "09356":"manuais/09355/index.html"};  /* 09356 = mesma montagem do 09355 */  /* manuais que já estão em outro endereço */
 const VIDEOS  = {"09898": "https://youtu.be/hnwyvLQCRbY", "09709": "https://youtu.be/DubYoRxJZEk", "09987": "https://youtu.be/9HynAiFR-ak", "09998": "https://youtu.be/iW16GHUTiEw", "10054": "https://youtu.be/S3CabayKYPU", "10009": "https://youtu.be/MN92QOq6q34", "10043": "https://youtu.be/RR2g9snCZ-k", "09809": "https://youtu.be/Z8L2_EwdgJs", "10032": "https://youtu.be/f9Bx1fbhCr0", "10087": "https://youtu.be/Z4eFzEBvd80"};                /* ex.: "09987": "https://youtu.be/XXXXXXXXXXX" */
 const EXTRAS  = {"09987":["3D"], "09898":["3D"], "09709":["3D"], "09998":["3D"], "10054":["3D"], "09355":["3D"], "09356":["3D"], "10009":["3D"], "10043":["3D"], "09809":["3D"], "10032":["3D"], "10087":["3D"]};  /* selos no cartão */
 const NOTAS   = {"09355":"Mesma montagem da ref. 0935.6 · as cores podem variar", "09356":"Mesma montagem da ref. 0935.5 · as cores podem variar"};  /* aviso curto no cartão */
-const FOTO_SRC = {};     /* só na versão de visualização (no site as fotos ficam na pasta fotos/) */
+const FOTO_SRC = {};
+/* Blocos de Montar: o subgrupo abaixo é dividido em TEMAS, tirados do nome ("BL <Tema> – ..."). Tema novo entra sozinho.
+   TEMAS_INFO = nome completo e logo de cada tema (img/temas/); sem logo, aparece só o nome. */
+const TEMAS_SUB = "Blocos de Montar";
+const TEMAS_INFO = {
+  "Quadrante X": {completo:"Quadrante X – A última fronteira", logo:"img/temas/quadrante-x.webp"},
+};     /* só na versão de visualização (no site as fotos ficam na pasta fotos/) */
 
 const VERTS = {
   B:{nome:"Blocos de Montar", num:"01", bar:"#293b7f", bg:"#e6e3f0",
@@ -634,6 +648,11 @@ const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 const temFoto = c => !!(FOTO_SRC[c] || FOT[c]);
 const fotoSrc = c => FOTO_SRC[c] || FOT[c];
 const urlMan = c => MANUAL_LINK[c] || "manuais/"+c+"/index.html";
+/* tema dos blocos: "BL Quadrante X – Nave Espacial – 106 peças" -> "Quadrante X"; o nome fica "Nave Espacial – 106 peças" */
+const TEMA_CANON = {};
+CATALOGO.forEach(p=>{ const m=p[3]===TEMAS_SUB && p[1].match(/^BL\s+(.+?)\s+–\s+/); if(m){ const k=norm(m[1]); if(!TEMA_CANON[k]||/[^\x00-\x7f]/.test(m[1])) TEMA_CANON[k]=m[1]; } });
+const temaDe = p => { if(p[3]!==TEMAS_SUB) return null; const m=p[1].match(/^BL\s+(.+?)\s+–\s+/); return m ? TEMA_CANON[norm(m[1])] : "Outros"; };
+const nomeCurto = p => temaDe(p) && temaDe(p)!=="Outros" ? p[1].replace(/^BL\s+.+?\s+–\s+/,"") : p[1];
 function busca(q, lista=PRODUTOS){
   q=q.trim(); if(!q) return lista;
   const d=q.replace(/[^\d]/g,""), t=norm(q), so=/^[\d.\s]+$/.test(q);
@@ -692,11 +711,11 @@ let buscaGlobal="";
 function verTodos(v){ const r=busca(v!==undefined?v:q.value); if(!r.length) return; buscaGlobal=v!==undefined?v:q.value; vAtual=null; location.hash=`#/v/${r[0][2]}`; }
 
 /* ======================= LINHA ======================= */
-let vAtual=null, sub="Todas", vq="", fVid=false;
+let vAtual=null, sub="Todas", tema="Todos", vq="", fVid=false;
 function linha(k, foco){
   const V=VERTS[k]; if(!V) return (location.hash="#/");
   setCor(k);
-  if(vAtual!==k){ vAtual=k; sub="Todas"; vq=buscaGlobal||""; $("#vq").value=vq; buscaGlobal=""; }
+  if(vAtual!==k){ vAtual=k; sub="Todas"; tema="Todos"; vq=buscaGlobal||""; $("#vq").value=vq; buscaGlobal=""; }
   const it=PRODUTOS.filter(p=>p[2]===k);
   $("#vNum").textContent="LINHA "+V.num; $("#vTitle").textContent=V.nome;
   $("#vSub").textContent="Toque em “Abrir manual” para ver o passo a passo do brinquedo.";
@@ -705,7 +724,13 @@ function linha(k, foco){
   const subs=V.subs.map(s=>s[0]).filter(s=>it.some(p=>p[3]===s));
   if(sub!=="Todas" && !subs.includes(sub)) sub="Todas";
   $("#chips").innerHTML=(subs.length>1?["Todas",...subs]:[]).map(s=>`<button class="chip" aria-pressed="${s===sub}" data-s="${s}">${s}</button>`).join("");
-  document.querySelectorAll("#chips .chip").forEach(b=>b.onclick=()=>{sub=b.dataset.s;linha(k);});
+  document.querySelectorAll("#chips .chip").forEach(b=>b.onclick=()=>{sub=b.dataset.s;tema="Todos";linha(k);});
+  /* segunda fileira: temas do subgrupo dos blocos, quando ele está escolhido (ou é o único da linha) */
+  const temas=[...new Set(it.filter(p=>p[3]===TEMAS_SUB).map(temaDe))].sort((a,b)=>(a==="Outros")-(b==="Outros")||a.localeCompare(b,"pt"));
+  const verTemas=(sub===TEMAS_SUB||(subs.length<=1&&subs[0]===TEMAS_SUB))&&temas.length>1;
+  if(!temas.includes(tema)) tema="Todos";
+  $("#chips2").innerHTML=verTemas?["Todos",...temas].map(t=>`<button class="chip" aria-pressed="${t===tema}" data-t="${t}">${t==="Todos"?"Todos os temas":t}</button>`).join(""):"";
+  document.querySelectorAll("#chips2 .chip").forEach(b=>b.onclick=()=>{tema=b.dataset.t;linha(k);});
   lista(k);
   if(foco) setTimeout(()=>{ const el=document.getElementById("r"+foco); if(el){ el.scrollIntoView({behavior:"smooth",block:"nearest"}); el.classList.add("hl"); setTimeout(()=>el.classList.remove("hl"),2600);} },150);
 }
@@ -716,7 +741,7 @@ function card(p){
       <span class="ref">${fmtRef(c)}</span>
       ${(EXTRAS[c]||vd)?`<div class="badges">${(EXTRAS[c]||[]).map(x=>`<span>${x}</span>`).join("")}${vd?'<span>vídeo</span>':''}</div>`:''}
     </div>
-    <div class="cb"><div class="nm">${nome}</div><div class="sb">${s}</div>${NOTAS[c]?`<div class="nt">${NOTAS[c]}</div>`:''}
+    <div class="cb"><div class="nm">${nomeCurto(p)}</div><div class="sb">${temaDe(p)&&temaDe(p)!=="Outros"?(TEMAS_INFO[temaDe(p)]||{}).completo||temaDe(p):s}</div>${NOTAS[c]?`<div class="nt">${NOTAS[c]}</div>`:''}
       <div class="acts">
         <a class="b-man" href="${urlMan(c)}">${ICON_DOC}Abrir manual</a>
         ${vd?`<a class="b-ic b-yt" href="${vd}" target="_blank" rel="noopener" title="Vídeo de montagem" aria-label="Vídeo de montagem" onclick="return video(event,'${c}')"><i></i></a>`:''}
@@ -726,10 +751,13 @@ function card(p){
 }
 function lista(k){
   const V=VERTS[k];
-  let it=busca(vq, PRODUTOS.filter(p=>p[2]===k)).filter(p=>(sub==="Todas"||p[3]===sub)&&(!fVid||VIDEOS[p[0]]));
+  let it=busca(vq, PRODUTOS.filter(p=>p[2]===k)).filter(p=>(sub==="Todas"||p[3]===sub)&&(tema==="Todos"||temaDe(p)===tema)&&(!fVid||VIDEOS[p[0]]));
   if(!it.length){ $("#lista").innerHTML=`<div class="empty-l">Nenhum manual encontrado com essa busca.</div>`; return; }
   $("#lista").innerHTML=V.subs.map(([s])=>{ const g=it.filter(p=>p[3]===s); if(!g.length) return "";
-    return `<div class="sub-h"><i></i><h2>${s}</h2></div><div class="grid">${g.map(card).join("")}</div>`; }).join("");
+    if(s!==TEMAS_SUB) return `<div class="sub-h"><i></i><h2>${s}</h2></div><div class="grid">${g.map(card).join("")}</div>`;
+    const ts=[...new Set(g.map(temaDe))].sort((a,b)=>(a==="Outros")-(b==="Outros")||a.localeCompare(b,"pt"));
+    return `<div class="sub-h"><i></i><h2>${s}</h2></div>`+ts.map(t=>{ const I=TEMAS_INFO[t]||{}, gg=g.filter(p=>temaDe(p)===t);
+      return `<div class="tema-h">${I.logo?`<img src="${I.logo}" alt="${I.completo||t}">`:''}<h3>${I.completo||t}</h3><small>${gg.length} ${gg.length>1?"manuais":"manual"}</small></div><div class="grid">${gg.map(card).join("")}</div>`; }).join(""); }).join("");
 }
 
 /* ======================= vídeo / link ======================= */
