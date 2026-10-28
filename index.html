@@ -236,6 +236,24 @@ main.list{padding-top:6px;padding-bottom:60px}
 .tema-h img{max-height:52px;max-width:220px;display:block}
 .tema-h h3{font:800 16px var(--f);color:var(--ink);margin:0}
 .tema-h small{font:600 12.5px var(--f);color:var(--muted)}
+/* Blocos de Montar: cards dos temas (antes dos produtos) */
+.temas{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+@media (max-width:520px){.temas{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+.tm{position:relative;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .18s,box-shadow .18s}
+.tm .lg{height:128px;display:grid;place-items:center;padding:14px;background:radial-gradient(120% 90% at 50% 100%,var(--c-bg) 0 36%,#fff 72%)}
+.tm.esc .lg{background:radial-gradient(120% 100% at 50% 100%,#2c3c6e 0 30%,#141c33 78%)}
+.tm .lg img{max-width:90%;max-height:92px;object-fit:contain;display:block}
+.tm .lg .tx{font:800 18px/1.15 var(--f);color:var(--azul);text-align:center}
+.tm .tb{padding:11px 14px 13px;display:flex;flex-direction:column;gap:7px;border-top:1px solid #f1ede8;flex:1}
+.tm .tb b{font:700 14.5px/1.25 var(--f);color:var(--ink)}
+.tm .qt{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;font:800 11.5px var(--f);border-radius:99px;padding:4px 10px;background:var(--azul);color:#fff;margin-top:auto}
+.tm .qt svg{width:13px;height:13px}
+.tm.off{cursor:default}
+.tm.off .lg img{opacity:.78}
+.tm.off .qt{background:#eceff5;color:var(--muted)}
+a.tm:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(22,65,148,.12)}
+a.tm:focus-visible{outline:none;box-shadow:0 0 0 3px var(--azul)}
+@media (max-width:520px){.tm .lg{height:96px;padding:10px}.tm .lg img{max-height:70px}.tm .tb{padding:9px 11px 11px}.tm .tb b{font-size:13.5px}}
 .sub-h i{width:5px;height:24px;border-radius:3px;background:var(--c-bar)}
 .sub-h h2{font:800 20px var(--f);color:var(--azul);letter-spacing:-.01em}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:14px}
@@ -669,6 +687,10 @@ const urlMan = c => MANUAL_LINK[c] || "manuais/"+c+"/index.html";
 const TEMA_CANON = {};
 CATALOGO.forEach(p=>{ const m=p[3]===TEMAS_SUB && p[1].match(/^BL\s+(.+?)\s+–\s+/); if(m){ const k=norm(m[1]); if(!TEMA_CANON[k]||/[^\x00-\x7f]/.test(m[1])) TEMA_CANON[k]=m[1]; } });
 const temaDe = p => { if(p[3]!==TEMAS_SUB) return null; const m=p[1].match(/^BL\s+(.+?)\s+–\s+/); if(!m) return "Outros"; const t=TEMA_CANON[norm(m[1])]; return TEMAS_ALIAS[t]||t; };
+const slugTema = t => norm(t).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const urlTema = (k,t) => t&&t!=="Todos" ? `#/v/${k}/t/${slugTema(t)}` : `#/v/${k}`;
+/* todos os temas do catálogo (ordem do TEMAS_INFO) + algum tema novo que já tenha manual */
+const todosTemas = () => [...new Set([...Object.keys(TEMAS_INFO), ...PRODUTOS.filter(p=>p[3]===TEMAS_SUB).map(temaDe)])];
 const nomeCurto = p => temaDe(p) && temaDe(p)!=="Outros" ? p[1].replace(/^BL\s+.+?\s+–\s+/,"") : p[1];
 function busca(q, lista=PRODUTOS){
   q=q.trim(); if(!q) return lista;
@@ -729,10 +751,11 @@ function verTodos(v){ const r=busca(v!==undefined?v:q.value); if(!r.length) retu
 
 /* ======================= LINHA ======================= */
 let vAtual=null, sub="Todas", tema="Todos", vq="", fVid=false;
-function linha(k, foco){
+function linha(k, foco, tm){
   const V=VERTS[k]; if(!V) return (location.hash="#/");
   setCor(k);
   if(vAtual!==k){ vAtual=k; sub="Todas"; tema="Todos"; vq=buscaGlobal||""; $("#vq").value=vq; buscaGlobal=""; }
+  if(tm!==undefined) tema=tm;
   const it=PRODUTOS.filter(p=>p[2]===k);
   $("#vNum").textContent="LINHA "+V.num; $("#vTitle").textContent=V.nome;
   $("#vSub").textContent="Toque em “Abrir manual” para ver o passo a passo do brinquedo.";
@@ -741,13 +764,16 @@ function linha(k, foco){
   const subs=V.subs.map(s=>s[0]).filter(s=>it.some(p=>p[3]===s));
   if(sub!=="Todas" && !subs.includes(sub)) sub="Todas";
   $("#chips").innerHTML=(subs.length>1?["Todas",...subs]:[]).map(s=>`<button class="chip" aria-pressed="${s===sub}" data-s="${s}">${s}</button>`).join("");
-  document.querySelectorAll("#chips .chip").forEach(b=>b.onclick=()=>{sub=b.dataset.s;tema="Todos";linha(k);});
+  document.querySelectorAll("#chips .chip").forEach(b=>b.onclick=()=>{sub=b.dataset.s; if(tema!=="Todos") location.hash=urlTema(k); else linha(k);});
   /* segunda fileira: temas do subgrupo dos blocos, quando ele está escolhido (ou é o único da linha) */
   const temas=[...new Set(it.filter(p=>p[3]===TEMAS_SUB).map(temaDe))].sort((a,b)=>(a==="Outros")-(b==="Outros")||a.localeCompare(b,"pt"));
-  const verTemas=(sub===TEMAS_SUB||(subs.length<=1&&subs[0]===TEMAS_SUB))&&temas.length>1;
-  if(!temas.includes(tema)) tema="Todos";
-  $("#chips2").innerHTML=verTemas?["Todos",...temas].map(t=>`<button class="chip" aria-pressed="${t===tema}" data-t="${t}">${t==="Todos"?"Todos os temas":t}</button>`).join(""):"";
-  document.querySelectorAll("#chips2 .chip").forEach(b=>b.onclick=()=>{tema=b.dataset.t;linha(k);});
+  if(tema!=="Todos" && !temas.includes(tema)) temas.push(tema);
+  const verTemas=(sub===TEMAS_SUB||(subs.length<=1&&subs[0]===TEMAS_SUB))&&(temas.length>1||tema!=="Todos");
+  if(tema!=="Todos" && !todosTemas().includes(tema)) tema="Todos";
+  $("#chips2").innerHTML=verTemas?["Todos",...temas].map(t=>`<button class="chip" aria-pressed="${t===tema}" data-t="${t}">${t==="Todos"?"← Todos os temas":t}</button>`).join(""):"";
+  document.querySelectorAll("#chips2 .chip").forEach(b=>b.onclick=()=>{ location.hash=urlTema(k,b.dataset.t); });
+  const grade=it.some(p=>p[3]===TEMAS_SUB) && tema==="Todos";
+  $("#vSub").textContent = grade && (sub==="Todas"||sub===TEMAS_SUB) && subs.length<=1 ? "Escolha o tema para ver os manuais dos blocos." : "Toque em “Abrir manual” para ver o passo a passo do brinquedo.";
   lista(k);
   if(foco) setTimeout(()=>{ const el=document.getElementById("r"+foco); if(el){ el.scrollIntoView({behavior:"smooth",block:"nearest"}); el.classList.add("hl"); setTimeout(()=>el.classList.remove("hl"),2600);} },150);
 }
@@ -766,12 +792,23 @@ function card(p){
       </div></div>
   </article>`;
 }
+/* cards de todos os temas dos blocos; tema sem manual publicado aparece como "Em breve" */
+function gradeTemas(k){
+  const pub=PRODUTOS.filter(p=>p[3]===TEMAS_SUB);
+  return `<div class="temas">`+todosTemas().filter(t=>t!=="Outros"||pub.some(p=>temaDe(p)===t)).map(t=>{
+    const I=TEMAS_INFO[t]||{}, n=pub.filter(p=>temaDe(p)===t).length, nv=pub.filter(p=>temaDe(p)===t&&VIDEOS[p[0]]).length, nome=I.completo||t;
+    const lg=`<div class="lg">${I.logo?`<img loading="lazy" src="${I.logo}" alt="${nome}">`:`<span class="tx">${nome}</span>`}</div>`;
+    const tb=`<div class="tb"><b>${nome}</b><span class="qt">${n?`${ICON_DOC}${n} ${n>1?"manuais":"manual"}${nv?" · vídeo":""}`:"Em breve"}</span></div>`;
+    return n ? `<a class="tm${I.escuro?' esc':''}" href="${urlTema(k,t)}">${lg}${tb}</a>`
+             : `<div class="tm off${I.escuro?' esc':''}" aria-disabled="true">${lg}${tb}</div>`; }).join("")+`</div>`;
+}
 function lista(k){
   const V=VERTS[k];
   let it=busca(vq, PRODUTOS.filter(p=>p[2]===k)).filter(p=>(sub==="Todas"||p[3]===sub)&&(tema==="Todos"||temaDe(p)===tema)&&(!fVid||VIDEOS[p[0]]));
   if(!it.length){ $("#lista").innerHTML=`<div class="empty-l">Nenhum manual encontrado com essa busca.</div>`; return; }
   $("#lista").innerHTML=V.subs.map(([s])=>{ const g=it.filter(p=>p[3]===s); if(!g.length) return "";
     if(s!==TEMAS_SUB) return `<div class="sub-h"><i></i><h2>${s}</h2></div><div class="grid">${g.map(card).join("")}</div>`;
+    if(tema==="Todos" && !vq.trim() && !fVid) return `<div class="sub-h"><i></i><h2>${s}</h2></div>`+gradeTemas(k);
     const ts=[...new Set(g.map(temaDe))].sort((a,b)=>(a==="Outros")-(b==="Outros")||a.localeCompare(b,"pt"));
     return `<div class="sub-h"><i></i><h2>${s}</h2></div>`+ts.map(t=>{ const I=TEMAS_INFO[t]||{}, gg=g.filter(p=>temaDe(p)===t);
       return `<div class="tema-h">${I.logo?`<span class="lg${I.escuro?' esc':''}"><img src="${I.logo}" alt="${I.completo||t}"></span>`:''}<h3>${I.completo||t}</h3><small>${gg.length} ${gg.length>1?"manuais":"manual"}</small></div><div class="grid">${gg.map(card).join("")}</div>`; }).join(""); }).join("");
@@ -791,11 +828,14 @@ function rota(){
   const h=decodeURIComponent(location.hash.replace(/^#\/?/,""));
   if(/^[\d.]+$/.test(h)){ const c=h.replace(/\D/g,"").padStart(5,"0"); const p=PRODUTOS.find(x=>x[0]===c);
     if(p){ location.replace(`#/v/${p[2]}/${c}`); return; } }
-  const m=h.match(/^v\/([A-Z])(?:\/(\d{5}))?/);
+  const m=h.match(/^v\/([A-Z])(?:\/(\d{5}))?(?:\/t\/([\w-]+))?/);
   const emLinha=!!(m && PRODUTOS.some(p=>p[2]===m[1]));
   $("#home").classList.toggle("hidden",emLinha); $("#vert").classList.toggle("hidden",!emLinha);
   $("#nav").classList.toggle("cmp",emLinha);
-  if(emLinha){ linha(m[1],m[2]); if(!m[2]) window.scrollTo(0,0); }
+  if(emLinha){
+    const pf=m[2]&&PRODUTOS.find(x=>x[0]===m[2]);
+    const tm=m[3] ? (todosTemas().find(t=>slugTema(t)===m[3])||"Todos") : (pf&&temaDe(pf)&&temaDe(pf)!=="Outros" ? temaDe(pf) : "Todos");
+    linha(m[1],m[2],tm); if(!m[2]) window.scrollTo(0,0); }
   else { vAtual=null; home(); window.scrollTo(0,0); }
 }
 
