@@ -89,6 +89,7 @@ nav.top a.back:hover{background:var(--blue)}
 #vVid.on{display:flex}
 #vVid .box{width:min(1100px,100%);display:flex;flex-direction:column;gap:10px}
 #vVid video{width:100%;max-height:78vh;background:#000;border-radius:12px}
+#vVid iframe{width:100%;aspect-ratio:16/9;max-height:78vh;border:0;background:#000;border-radius:12px}
 #vVid .x{align-self:flex-end;width:44px;height:44px;border-radius:50%;border:0;background:#fff;font:800 22px "Open Sans",sans-serif;cursor:pointer}
 #vVid .sem{color:#fff;font-weight:650;display:none;gap:10px;flex-direction:column}
 #vVid .sem.on{display:flex}
@@ -478,9 +479,28 @@ html.lock{overflow:hidden}
 <script>(() => {
   const b = document.getElementById('bVideo'); if (!b) return;
   const D = document.getElementById('vVid'), v = document.getElementById('vVidV'), sem = document.getElementById('vVidSem'), yt = document.getElementById('vVidYt');
-  const fechar = () => { D.classList.remove('on'); v.pause(); document.documentElement.classList.remove('lock'); };
+  const ID = ((b.dataset.yt || '').match(/(?:youtu\.be\/|[?&]v=|embed\/)([\w-]{11})/) || [])[1] || '';
+  const web = location.protocol.startsWith('http');
+  let fr = null;
+  const fechar = () => { D.classList.remove('on'); v.pause(); if (fr) fr.src = 'about:blank'; document.documentElement.classList.remove('lock'); };
   b.addEventListener('click', () => {
     const mp4 = b.dataset.mp4, link = b.dataset.yt;
+    // no site: o vídeo do YouTube toca aqui mesmo, num modal (como nos manuais dos playgrounds)
+    if (ID && web) {
+      if (!fr) {
+        fr = document.createElement('iframe'); fr.title = 'Nave Espacial · YouTube';
+        fr.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; fr.allowFullscreen = true;
+        fr.referrerPolicy = 'strict-origin-when-cross-origin'; v.replaceWith(fr);
+      }
+      const L = window.__LANG || 'pt';
+      const q = new URLSearchParams({ autoplay: 1, rel: 0, playsinline: 1, hl: L, cc_lang_pref: L });
+      if (L !== 'pt') q.set('cc_load_policy', 1);
+      fr.src = 'https://www.youtube.com/embed/' + ID + '?' + q;
+      yt.href = link; yt.hidden = false;
+      D.classList.add('on'); document.documentElement.classList.add('lock');
+      return;
+    }
+    // arquivo aberto do computador (sem site): o YouTube não toca embutido, então abre o link
     if (!mp4 && link) { window.open(link, '_blank', 'noopener'); return; }
     D.classList.add('on'); document.documentElement.classList.add('lock');
     if (link) { yt.href = link; yt.hidden = false; }
