@@ -54,7 +54,7 @@ nav.top a.back:hover{background:var(--blue)}
 .rail li a{display:flex;align-items:center;gap:10px;padding:5px 8px;border-radius:12px;text-decoration:none;color:var(--ink);font-size:14px;font-weight:700;border:1.5px solid transparent}
 .rail li a:hover{background:var(--panel)}
 .rail li a .n{display:grid;place-items:center;min-width:42px;height:28px;padding:0 6px;flex:none;border-radius:999px;border:2px solid var(--ink);font-weight:800;font-size:13px;background:#fff}
-.rail li a img{width:64px;height:40px;object-fit:contain;border-radius:6px;background:#fff;flex:none;margin-left:auto}
+.rail li a img{width:104px;height:62px;object-fit:contain;border-radius:8px;background:#fff;flex:none;margin-left:auto;padding:2px}
 .rail li a.done .n{background:var(--green);border-color:var(--green);color:#fff}
 .rail li a.on{background:var(--pill);border-color:var(--ink)}
 .rail li a.on .n{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -151,7 +151,8 @@ dialog.pd::backdrop{background:rgba(29,29,27,.55)}
 .chips a:hover,.chip:hover{background:var(--pill)}
 .duo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
 .duo .card img{display:block;max-width:100%;height:auto;margin:0 auto}
-.stk{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+.stk{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.stk .chip{white-space:nowrap}
 .stk li{display:flex;align-items:center;gap:10px;font-weight:700}
 .stk .no{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;border:2px solid var(--ink);background:var(--panel);font-size:13px;font-weight:800}
 .step{margin:30px 0 46px;padding-top:22px;border-top:2px solid var(--ink);scroll-margin-top:70px}
@@ -488,7 +489,7 @@ html.lock{overflow:hidden}
     // no site: o vídeo do YouTube toca aqui mesmo, num modal (como nos manuais dos playgrounds)
     if (ID && web) {
       if (!fr) {
-        fr = document.createElement('iframe'); fr.title = 'Nave Espacial · YouTube';
+        fr = document.createElement('iframe'); fr.title = "Nave Espacial \u00b7 YouTube";
         fr.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; fr.allowFullscreen = true;
         fr.referrerPolicy = 'strict-origin-when-cross-origin'; v.replaceWith(fr);
       }
@@ -697,7 +698,7 @@ function materialAdesivo(THREE, url) {
   const T = (k) => { const v = JSON.parse(document.getElementById('i18n').textContent)[k]; return v ? v[window.__LI || 0] : ''; };
   const IDS = ["1-1", "1-2", "1-3", "1-4", "1-5", "1-6", "1-7", "1-8", "1-9", "1-10", "1-11", "1-12", "1-13", "1-14", "1-15", "1-16", "1-17", "1-18", "1-19", "1-20", "1-21"], N = IDS.length, K_SEM = '42';
   const V = $('#v3d'), stage = $('#vStage'), can = $('#vCan'), rng = $('#vRange'), hl = $('#vHl');
-  let META_CAIXA = null, THREE = null, R = null, scene, cam, root, meshes = [], lines = [], adesivos = [], ready = null;
+  let META_VS = null, META_V0 = null, META_CAIXA = null, THREE = null, R = null, scene, cam, root, meshes = [], lines = [], adesivos = [], ready = null;
   let step = N - 1, onClose = null, az = -45, el = 28, dist = 1, fit = 1, tgt = null, need = true;
   const OLD = '#b7cfe8', EDGE = { 0: '#5d6b75', 15: '#55595e' }, EDGE_OLD = '#7f9fc4';
 
@@ -709,7 +710,7 @@ function materialAdesivo(THREE, url) {
     const src = await gunzip(document.getElementById('v3dThree').textContent);
     const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
     THREE = await import(url);
-    const META = JSON.parse(document.getElementById('v3dMeta').textContent); META_CAIXA = META.caixa;
+    const META = JSON.parse(document.getElementById('v3dMeta').textContent); META_CAIXA = META.caixa; META_V0 = META.vista0 || null; META_VS = META.vistas || null;
     const I = new Int16Array(await gunzip(document.getElementById('v3dDados').textContent));
     R = new THREE.WebGLRenderer({ canvas: can, antialias: true });
     R.setPixelRatio(Math.min(2, devicePixelRatio || 1));
@@ -738,12 +739,14 @@ function materialAdesivo(THREE, url) {
     const cR = new THREE.Color(), cO = new THREE.Color(EDGE_OLD);
     porParte.forEach((lst, pi) => {
       if (!lst.length) return;
-      const im = new THREE.InstancedMesh(geos[pi].g, mat, lst.length); im.frustumCulled = false;
+      const tr = META.trans && META.trans[lst[0][1]];
+      const mt = tr ? new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 90, specular: 0x666666, transparent: true, opacity: tr, depthWrite: false, side: THREE.DoubleSide }) : mat;
+      const im = new THREE.InstancedMesh(geos[pi].g, mt, lst.length); im.frustumCulled = false; if (tr) im.renderOrder = 2;
       im.userData.lst = lst; im.userData.cor = lst.map((r) => new THREE.Color(META.cores[r[1]] || '#999')); im.userData.base = [];
       lst.forEach((r, k) => {
         const [x, y, z, a, b, c, d, e, f, g, h, i] = r.slice(3);
         m4.set(a, b, c, x, d, e, f, y, g, h, i, z, 0, 0, 0, 1); im.setMatrixAt(k, m4); im.setColorAt(k, im.userData.cor[k]); im.userData.base.push(m4.clone());
-        const ed = geos[pi].ed, s = r[2]; cR.set(EDGE[r[1]] || '#555');
+        const ed = geos[pi].ed, s = r[2]; cR.set((META.bordas && META.bordas[r[1]]) || EDGE[r[1]] || '#555');
         for (let q = 0; q < ed.length; q += 3) {
           v.set(ed[q], ed[q + 1], ed[q + 2]).applyMatrix4(m4); ePos[s].push(v.x, v.y, v.z); box.expandByPoint(v);
           eCol[s].push(cR.r, cR.g, cR.b); eOld[s].push(cO.r, cO.g, cO.b);
@@ -753,7 +756,8 @@ function materialAdesivo(THREE, url) {
     });
     // direção de chegada de cada peça na animação: pelo topo dela; peça de lado chega pelo lado de fora do modelo
     const cen = box.getCenter(new THREE.Vector3());
-    for (const im of meshes) im.userData.dir = im.userData.base.map((M) => {
+    for (const im of meshes) im.userData.dir = im.userData.base.map((M, j) => {
+      const dd = META.dirs && META.dirs[im.userData.lst[j][0]]; if (dd) return new THREE.Vector3(...dd);
       const e = M.elements, up = new THREE.Vector3(-e[4], -e[5], -e[6]).normalize(), pos = new THREE.Vector3(e[12], e[13], e[14]);
       if (Math.abs(up.y) > 0.7) return up;
       const sg = Math.sign(pos.clone().sub(cen).dot(up)) || 1; up.multiplyScalar(sg); up.y = 0; return up.normalize();
@@ -765,6 +769,15 @@ function materialAdesivo(THREE, url) {
       const dm = new THREE.Mesh(fazerAdesivo(THREE, geos[a.p].g, a), MA[a.ad]);
       const [x, y, z, A, B, C, D, E2, F, G, H, K] = a.m; dm.matrixAutoUpdate = false; dm.matrix.set(A, B, C, x, D, E2, F, y, G, H, K, z, 0, 0, 0, 1);
       dm.userData.s = a.s; root.add(dm); adesivos.push(dm);
+    }
+    if (META.planos && META.planos.length) {
+      const im = new Image(); im.src = META.cartela; await im.decode().catch(() => {});
+      const tx = new THREE.Texture(im); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 8; tx.needsUpdate = true;
+      const mp = new THREE.MeshPhongMaterial({ map: tx, shininess: 60, specular: 0x333333, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+      for (const pl of META.planos) {
+        const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pl.p), 3)); g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(pl.uv), 2)); g.computeVertexNormals();
+        const dm = new THREE.Mesh(g, mp); dm.userData.s = pl.s; root.add(dm); adesivos.push(dm);
+      }
     }
     const lm = new THREE.LineBasicMaterial({ vertexColors: true });
     for (let s = 0; s < N; s++) {
@@ -823,9 +836,14 @@ function materialAdesivo(THREE, url) {
     for (const it of a.itens) { it.m.setMatrixAt(it.j, it.m.userData.base[it.j]); it.m.instanceMatrix.needsUpdate = true; }
     if (lines[a.s]) lines[a.s].visible = a.s <= step; adesivos.forEach((m) => { m.visible = m.userData.s <= step; }); need = true;
   }
+  let vistaAnt = null;
   function setStep(k, animado) {
     pararAnim();
     step = Math.max(0, Math.min(N - 1, k));
+    // kit com vista por passo (mesmo lado da figura do manual): troca a câmera só quando a vista do passo muda
+    const vs = META_VS && META_VS[step];
+    if (vs && (!vistaAnt || vs[0] !== vistaAnt[0] || vs[1] !== vistaAnt[1])) { az = vs[0]; el = vs[1]; }
+    vistaAnt = vs || null;
     const temNovas = meshes.some((m) => m.userData.lst.some((r) => r[2] === step));
     const destaca = hl.checked && temNovas, old = new THREE.Color(OLD);
     for (const m of meshes) {
@@ -861,7 +879,7 @@ function materialAdesivo(THREE, url) {
     can.addEventListener('dblclick', reset);
   }
   const zoom = (f) => { dist = Math.max(0.3, Math.min(2.5, dist * f)); need = true; };
-  const reset = () => { az = -45; el = 28; dist = 1; need = true; };
+  const reset = () => { const v0 = (META_VS && META_VS[step]) || META_V0 || [-45, 28]; az = v0[0]; el = v0[1]; dist = 1; need = true; };
 
   async function open(k, destacar, cb) {
     onClose = cb || null; hl.checked = destacar !== false;
