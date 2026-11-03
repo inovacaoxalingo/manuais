@@ -340,7 +340,7 @@ html.lock{overflow:hidden}
     <ul class="facts"><li><b>60</b><span data-i="6">peças</span></li><li><b>14</b><span data-i="7">passos</span></li><li><b>6+</b><span data-i="8">anos</span></li></ul>
     <p class="otit"><span data-i="39">Como você quer montar?</span></p>
     <div class="opcoes">
-      <button type="button" class="op opvid" id="bVideo" data-yt="https://youtu.be/YGkd1LCg1LA"><svg width="30" height="22" viewBox="0 0 30 22" aria-hidden="true"><rect width="30" height="22" rx="6" fill="#fff"/><path d="M12 6.5v9l8-4.5z" fill="#e00"/></svg><span class="vtx"><span data-i="33">Assistir ao vídeo</span><small><span data-i="34">Montagem completa em 3D</span> · 1:32</small></span></button>
+      <button type="button" class="op opvid" id="bVideo" data-yt="https://youtu.be/qFsgR7vrEkE"><svg width="30" height="22" viewBox="0 0 30 22" aria-hidden="true"><rect width="30" height="22" rx="6" fill="#fff"/><path d="M12 6.5v9l8-4.5z" fill="#e00"/></svg><span class="vtx"><span data-i="33">Assistir ao vídeo</span><small><span data-i="34">Montagem completa em 3D</span> · 1:32</small></span></button>
       <button type="button" class="op op3d" data-v3d="0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 2.8 20.5 7.5v9L12 21.2 3.5 16.5v-9z"/><path d="M3.5 7.5 12 12.2l8.5-4.7M12 12.2v9"/></svg><span class="vtx"><span data-i="35">Montar em 3D</span><small><span data-i="36">Passo a passo animado · gire e veja de todos os lados</span></small></span></button>
       <button type="button" class="op opest" data-open="0" id="goMain"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.2"/><path d="M14 17h6M17 14v6"/></svg><span class="vtx"><span data-i="37">Manual passo a passo</span><small><span data-i="38">As figuras do manual, em tela cheia</span></small><small id="goCont" class="cont"></small></span></button>
       <a class="op oppdf" href="Mini_Patrola_0265.4_Manual.pdf" download><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg><span class="vtx"><span data-i="4">Baixar o manual em PDF</span><small><span data-i="5">4 páginas · igual ao manual da caixa · 0,8 MB</span></small></span></a>
@@ -686,6 +686,7 @@ function materialAdesivo(THREE, url) {
   const V = $('#v3d'), stage = $('#vStage'), can = $('#vCan'), rng = $('#vRange'), hl = $('#vHl');
   let META_VS = null, META_V0 = null, META_CAIXA = null, THREE = null, R = null, scene, cam, root, meshes = [], lines = [], adesivos = [], ready = null;
   let step = N - 1, onClose = null, az = -45, el = 28, dist = 1, fit = 1, tgt = null, need = true;
+  let caixaP = [], fitTot = 1, RANK = null;   // enquadramento por passo (META.enq): caixa do que já está montado em cada passo
   const OLD = '#b7cfe8', EDGE = { 0: '#5d6b75', 15: '#55595e' }, EDGE_OLD = '#7f9fc4';
 
   const u8 = (s) => { const b = atob(s.trim()); const u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; };
@@ -696,7 +697,7 @@ function materialAdesivo(THREE, url) {
     const src = await gunzip(document.getElementById('v3dThree').textContent);
     const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
     THREE = await import(url);
-    const META = JSON.parse(document.getElementById('v3dMeta').textContent); META_CAIXA = META.caixa; META_V0 = META.vista0 || null; META_VS = META.vistas || null;
+    const META = JSON.parse(document.getElementById('v3dMeta').textContent); META_CAIXA = META.caixa; META_V0 = META.vista0 || null; META_VS = META.vistas || null; RANK = META.rank || null;
     const I = new Int16Array(await gunzip(document.getElementById('v3dDados').textContent));
     R = new THREE.WebGLRenderer({ canvas: can, antialias: true });
     R.setPixelRatio(Math.min(2, devicePixelRatio || 1));
@@ -775,6 +776,8 @@ function materialAdesivo(THREE, url) {
     // centro e tamanho do modelo inteiro (já virado: no arquivo o Y aponta para baixo)
     root.updateMatrixWorld(true); const wb = box.clone().applyMatrix4(root.matrixWorld);
     tgt = wb.getCenter(new THREE.Vector3()); fit = wb.getSize(new THREE.Vector3()).length() / 2;   // raio da esfera que envolve o modelo
+    fitTot = fit;
+    if (META.enq) { const bb = new THREE.Box3(); for (let s = 0; s < N; s++) { const P = ePos[s]; for (let q = 0; q < P.length; q += 3) { v.set(P[q], P[q + 1], P[q + 2]); bb.expandByPoint(v); } caixaP.push(bb.isEmpty() ? null : bb.clone().applyMatrix4(root.matrixWorld)); } }
     dist = 1;
     new ResizeObserver(() => { need = true; }).observe(stage);
     const loop = (now) => { if (V.classList.contains('on')) { if (anim) animar(now); if (need) draw(); } requestAnimationFrame(loop); };
@@ -801,6 +804,7 @@ function materialAdesivo(THREE, url) {
     if (calma || !meshes.length) return;
     const itens = []; for (const m of meshes) m.userData.lst.forEach((r, j) => { if (r[2] === step) itens.push({ m, j }); });
     if (!itens.length) return;
+    if (RANK) itens.sort((a, b) => RANK[a.m.userData.lst[a.j][0]] - RANK[b.m.userData.lst[b.j][0]]);   // ordem de chegada da ficha (kits do FBX)
     const gap = Math.min(260, 1700 / itens.length); itens.forEach((it, i) => { it.d = i * gap; });
     anim = { s: step, t0: performance.now() + 150, itens, fim: (itens.length - 1) * gap + DUR };
     lines[step].visible = false; adesivos.forEach((m) => { if (m.userData.s === step) m.visible = false; });
@@ -830,6 +834,7 @@ function materialAdesivo(THREE, url) {
     const vs = META_VS && META_VS[step];
     if (vs && (!vistaAnt || vs[0] !== vistaAnt[0] || vs[1] !== vistaAnt[1])) { az = vs[0]; el = vs[1]; }
     vistaAnt = vs || null;
+    const cb = caixaP[step]; if (cb) { tgt = cb.getCenter(new THREE.Vector3()); fit = Math.max(cb.getSize(new THREE.Vector3()).length() / 2, fitTot * 0.5); }
     const temNovas = meshes.some((m) => m.userData.lst.some((r) => r[2] === step));
     const destaca = hl.checked && temNovas, old = new THREE.Color(OLD);
     for (const m of meshes) {
