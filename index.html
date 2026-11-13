@@ -373,6 +373,25 @@ footer .sp{flex:1}
 .nav.fx-top .mini{background:#fff;border-color:#fff}
 @media (max-width:700px){.nav.fx-top .fx-logo img{width:104px}.nav.cmp .fx-sec{display:none}}
 body{background:#eaf3ff}.fx-veja{max-width:1180px;padding:0 18px}.hero{background:linear-gradient(180deg,#fff 0,#fff 55%,#eaf3ff 100%)}
+
+/* celular: busca no topo azul (o JS leva a caixa de busca da página inicial para cá) */
+.fx-buscam{display:none}
+@media (max-width:700px){
+  .nav.fx-top{background:linear-gradient(180deg,#0a1f4f,#11337a)}
+  .nav.fx-top::after{display:none}
+  .nav.cmp.fx-top::after{display:block}
+  .fx-buscam{display:block;position:relative;z-index:16;background:linear-gradient(180deg,#11337a,#164194);padding:2px 16px 22px}
+  .fx-buscam::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:#60D437}
+  .nav.cmp + .fx-buscam{display:none}
+  .fx-buscam .search{margin-top:0;max-width:none}
+  .fx-buscam .search .box{height:54px;border:0;border-radius:16px;box-shadow:0 8px 24px rgba(10,31,79,.25)}
+  .fx-buscam .search .go{height:40px;padding:0 14px}
+  .fx-buscam .hint{color:#dbe4f5;margin-top:10px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-16px;padding-right:16px}
+  .fx-buscam .hint::-webkit-scrollbar{display:none}
+  .fx-buscam .hint>*{flex:none}
+  .fx-buscam .hint button{border-color:transparent}
+  .fx-buscam .drop{top:62px}
+}
 footer.fx-rod{background:transparent;color:#56648a}footer.fx-rod a{color:#164194}footer.fx-rod .wrap{display:block}
 </style>
 </head>
@@ -385,6 +404,7 @@ footer.fx-rod{background:transparent;color:#56648a}footer.fx-rod a{color:#164194
   <label class="mini"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="qMini" type="search" placeholder="Ref. ou nome" autocomplete="off" aria-label="Buscar"></label>
   <a class="fx-menu" href="https://inovacaoxalingo.github.io/menu/" aria-label="Voltar ao menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg><span>Menu</span></a>
 </div></header>
+<div class="fx-buscam" id="buscaM"></div>
 
 <!-- ============ HOME ============ -->
 <div id="home">
@@ -960,6 +980,14 @@ arte(); rota(); leGitHub();
   G.slice(1).reduce((p,g)=>p.then(()=>baixa(g)), new Promise(r=>setTimeout(r,1500)));   /* o castelo vem depois, sem atrasar o topo */
   /* aba em segundo plano: o navegador pausa os GIFs; ao voltar, recomeça o atual do zero para não perder o sincronismo */
   document.addEventListener("visibilitychange",()=>{ if(document.hidden){ clearTimeout(tm); } else if(atual){ mostra(); } });
+})();
+
+/* celular: a busca fica no topo azul, igual aos outros sites */
+(function(){var s=document.getElementById("srch"),b=document.getElementById("buscaM");if(!s||!b||!window.matchMedia)return;
+  var marca=document.createComment("lugar da busca");s.parentNode.insertBefore(marca,s);
+  var mq=window.matchMedia("(max-width:700px)");
+  function ajusta(){ if(mq.matches){ if(s.parentNode!==b) b.appendChild(s); } else if(marca.nextSibling!==s){ marca.parentNode.insertBefore(s,marca.nextSibling); } }
+  ajusta(); if(mq.addEventListener) mq.addEventListener("change",ajusta); else if(mq.addListener) mq.addListener(ajusta);
 })();
 </script>
 </body>
