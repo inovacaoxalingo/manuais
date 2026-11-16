@@ -4,18 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Central de Manuais | Xalingo Brinquedos</title>
+<script src="/menu/privacidade.js?v=1"></script>
 <!-- Google Analytics (GA4), mesma propriedade do catálogo e do Interactive Play. Conta os acessos de forma anônima,
      sem dados pessoais e sem recursos de publicidade. Só liga no endereço publicado; para testar, abra com ?ga=1 -->
 <script>
 (function () {
   var ID = 'G-HB9RN5N1J2';
   if (!/(\.github\.io|xalingo\.com\.br)$/.test(location.hostname) && !/[?&]ga=1\b/.test(location.search)) return;
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function () { window.dataLayer.push(arguments); };
-  window.gtag('js', new Date());
-  window.gtag('config', ID, { content_group: 'Manuais', allow_google_signals: false, allow_ad_personalization_signals: false });
-  var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
-  document.head.appendChild(s);
+  function ligarGA() {
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', ID, { content_group: 'Manuais', allow_google_signals: false, allow_ad_personalization_signals: false });
+    var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
+    document.head.appendChild(s);
+  }
+  if (window.XalPriv) window.XalPriv.aoPermitir(ligarGA);   /* GA só depois do "Aceitar" no aviso de cookies */
 })();
 </script>
 <meta name="description" content="Encontre o manual de montagem e o vídeo do seu brinquedo Xalingo pela referência ou pelo nome.">
@@ -482,7 +486,7 @@ footer.fx-rod{background:transparent;color:#56648a}footer.fx-rod a{color:#164194
   <main class="wrap list" id="lista"></main>
 </div>
 
-<section class="fx-veja" aria-label="Veja também"><h2>Veja também</h2><div class="fx-g"><a href="https://inovacaoxalingo.github.io/jogos/" style="--c:#00A1FF"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8h10a5 5 0 0 1 4.9 6l-.6 3a2.5 2.5 0 0 1-4.3 1.2L15 16H9l-2 2.2A2.5 2.5 0 0 1 2.7 17l-.6-3A5 5 0 0 1 7 8z"/><path d="M8 11v3M6.5 12.5h3"/><circle cx="15.5" cy="11.5" r=".6" fill="currentColor"/><circle cx="17.5" cy="13.5" r=".6" fill="currentColor"/></svg></i><div><b>Jogos digitais</b><span>Jogue online com os brinquedos</span></div><em>›</em></a><a href="https://inovacaoxalingo.github.io/ra/" style="--c:#FF9200"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 4.2v9.6L12 21l-7.5-4.2V7.2z"/><path d="M4.5 7.2L12 11.5l7.5-4.3M12 11.5V21"/></svg></i><div><b>Realidade aumentada</b><span>Veja o brinquedo ganhar vida</span></div><em>›</em></a><a href="https://inovacaoxalingo.github.io/menu/" style="--c:#fff;--c:linear-gradient(135deg,#E3B500,#FF9200 50%,#E10000)"><i style="color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg></i><div><b>Menu Xalingo</b><span>Tudo num lugar só</span></div><em>›</em></a></div></section><footer class="fx-rod"><div class="fx-pt" aria-hidden="true"><i style="background:#164194"></i><i style="background:#00A1FF"></i><i style="background:#60D437"></i><i style="background:#E3B500"></i><i style="background:#FF9200"></i><i style="background:#E10000"></i></div>Dúvidas na montagem? <a href="mailto:sac@xalingo.com.br">sac@xalingo.com.br</a><br>© Xalingo Brinquedos. Todos os direitos reservados.<br><a href="https://www.xalingo.com.br/" target="_blank" rel="noopener">xalingo.com.br</a></footer>
+<section class="fx-veja" aria-label="Veja também"><h2>Veja também</h2><div class="fx-g"><a href="https://inovacaoxalingo.github.io/jogos/" style="--c:#00A1FF"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8h10a5 5 0 0 1 4.9 6l-.6 3a2.5 2.5 0 0 1-4.3 1.2L15 16H9l-2 2.2A2.5 2.5 0 0 1 2.7 17l-.6-3A5 5 0 0 1 7 8z"/><path d="M8 11v3M6.5 12.5h3"/><circle cx="15.5" cy="11.5" r=".6" fill="currentColor"/><circle cx="17.5" cy="13.5" r=".6" fill="currentColor"/></svg></i><div><b>Jogos digitais</b><span>Jogue online com os brinquedos</span></div><em>›</em></a><a href="https://inovacaoxalingo.github.io/ra/" style="--c:#FF9200"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 4.2v9.6L12 21l-7.5-4.2V7.2z"/><path d="M4.5 7.2L12 11.5l7.5-4.3M12 11.5V21"/></svg></i><div><b>Realidade aumentada</b><span>Veja o brinquedo ganhar vida</span></div><em>›</em></a><a href="https://inovacaoxalingo.github.io/menu/" style="--c:#fff;--c:linear-gradient(135deg,#E3B500,#FF9200 50%,#E10000)"><i style="color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg></i><div><b>Menu Xalingo</b><span>Tudo num lugar só</span></div><em>›</em></a></div></section><footer class="fx-rod"><div class="fx-pt" aria-hidden="true"><i style="background:#164194"></i><i style="background:#00A1FF"></i><i style="background:#60D437"></i><i style="background:#E3B500"></i><i style="background:#FF9200"></i><i style="background:#E10000"></i></div>Dúvidas na montagem? <a href="mailto:sac@xalingo.com.br">sac@xalingo.com.br</a><br>© Xalingo Brinquedos. Todos os direitos reservados.<br><a href="https://www.xalingo.com.br/" target="_blank" rel="noopener">xalingo.com.br</a> · <a href="/menu/privacidade.html" data-privacidade>Privacidade e cookies</a></footer>
 
 <div class="vdlg" id="vdlg" onclick="if(event.target===this)fechaVideo()"><div class="bx">
   <div class="hd"><span id="vdT"></span><button onclick="fechaVideo()" aria-label="Fechar">×</button></div>

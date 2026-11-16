@@ -4,18 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Super Creative Play 1000.9 — Instruções de montagem</title>
+<script src="/menu/privacidade.js?v=1"></script>
 <!-- Google Analytics (GA4), mesma propriedade do catálogo e do Interactive Play. Conta os acessos de forma anônima,
      sem dados pessoais e sem recursos de publicidade. Só liga no endereço publicado; para testar, abra com ?ga=1 -->
 <script>
 (function () {
   var ID = 'G-HB9RN5N1J2';
   if (!/(\.github\.io|xalingo\.com\.br)$/.test(location.hostname) && !/[?&]ga=1\b/.test(location.search)) return;
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function () { window.dataLayer.push(arguments); };
-  window.gtag('js', new Date());
-  window.gtag('config', ID, { content_group: 'Manuais', allow_google_signals: false, allow_ad_personalization_signals: false });
-  var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
-  document.head.appendChild(s);
+  function ligarGA() {
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', ID, { content_group: 'Manuais', allow_google_signals: false, allow_ad_personalization_signals: false });
+    var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
+    document.head.appendChild(s);
+  }
+  if (window.XalPriv) window.XalPriv.aoPermitir(ligarGA);   /* GA só depois do "Aceitar" no aviso de cookies */
 })();
 </script>
 <script>
@@ -871,7 +875,7 @@ html.v3d-lock{overflow:hidden}
 
 <footer><div class="wrap grid">
   <div><b>XALINGO S/A INDÚSTRIA E COMÉRCIO</b><br>BR 471, km 147 – Santa Cruz do Sul – RS – Brasil – CEP 96835-642<br>CNPJ 95.425.534/0001-76</div>
-  <div><b>SAC</b><br>(51) 3719-9800 · <a href="mailto:sac@xalingo.com.br">sac@xalingo.com.br</a><br><a href="https://www.xalingo.com.br">www.xalingo.com.br</a></div>
+  <div><b>SAC</b><br>(51) 3719-9800 · <a href="mailto:sac@xalingo.com.br">sac@xalingo.com.br</a><br><a href="https://www.xalingo.com.br">www.xalingo.com.br</a><br><a href="/menu/privacidade.html" data-privacidade>Privacidade e cookies</a></div>
   <div>Super Creative Play · ref. 1000.9<br><span data-i="9e">Guarde este manual para eventuais consultas.</span></div>
 </div></footer>
 
@@ -4263,7 +4267,7 @@ export { RoomEnvironment };
       yt.addEventListener('load', () => yt.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'vdY' }), '*'));
       v.replaceWith(yt);
     }
-    ytReady = false; yt.src = 'https://www.youtube.com/embed/' + YT + '?' + q;
+    ytReady = false; yt.src = 'https://www.youtube-nocookie.com/embed/' + YT + '?' + q;
     cur = t || 0; mark();
   }
   window.addEventListener('message', (e) => {
