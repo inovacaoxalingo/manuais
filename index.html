@@ -231,7 +231,7 @@ a{color:inherit}
 .vhead .circ{flex:none;width:132px;height:132px;border-radius:50%;background:#fff;border:1.8px solid var(--azul);display:flex;align-items:center;justify-content:center;color:var(--azul)}
 .vhead .circ .ico{width:86px;height:86px}
 @media (max-width:640px){.vhead .circ{width:78px;height:78px}.vhead .circ .ico{width:50px;height:50px}}
-.vtools{position:sticky;top:64px;z-index:10;background:rgba(247,243,238,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.vtools{position:sticky;top:0;z-index:10;background:rgba(247,243,238,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
 .vtools .wrap{padding-top:12px;padding-bottom:12px;display:flex;flex-direction:column;gap:10px}
 .vtools .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .vsearch{flex:1 1 260px;display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:0 12px;height:46px;color:var(--azul)}
@@ -244,6 +244,14 @@ a{color:inherit}
 .chip{flex:none;border:1.5px solid #d6dcea;background:#fff;color:var(--azul);border-radius:99px;padding:6px 14px;font:700 13px var(--f)}
 .chip[aria-pressed="true"]{background:var(--azul);border-color:var(--azul);color:#fff}
 main.list{padding-top:6px;padding-bottom:60px}
+/* barra de busca/filtros da linha: gruda no topo da tela (a barra azul de cima rola junto com a página, então não fica espaço vazio em cima) */
+.vtools .row:has(> .chips:empty){display:none}
+@media (max-width:700px){
+  .vtools .wrap{padding-top:10px;padding-bottom:10px;gap:8px}
+  .vtools .row:first-child{flex-wrap:nowrap}
+  .vsearch{flex:1 1 auto;height:44px}
+  .tg{flex:none;padding:8px 11px}
+}
 .sub-h{display:flex;align-items:center;gap:10px;margin:26px 0 12px}
 #chips2{margin-top:6px}
 #chips2 .chip{border-style:dashed}
@@ -885,10 +893,12 @@ function card(p){
       </div></div>
   </article>`;
 }
-/* cards de todos os temas dos blocos; tema sem manual publicado aparece como "Em breve" */
+/* cards dos temas dos blocos. Tema sem manual publicado fica oculto (pedido da Inovação, 23/11/2026).
+   Para voltar a mostrar esses temas como "Em breve", troque EM_BREVE para true. */
+const EM_BREVE = false;
 function gradeTemas(k){
   const pub=PRODUTOS.filter(p=>p[3]===TEMAS_SUB);
-  return `<div class="temas">`+todosTemas().filter(t=>t!=="Outros"||pub.some(p=>temaDe(p)===t)).map(t=>{
+  return `<div class="temas">`+todosTemas().filter(t=>pub.some(p=>temaDe(p)===t)||(EM_BREVE&&t!=="Outros")).map(t=>{
     const I=TEMAS_INFO[t]||{}, n=pub.filter(p=>temaDe(p)===t).length, nv=pub.filter(p=>temaDe(p)===t&&VIDEOS[p[0]]).length, nome=I.completo||t;
     const lg=`<div class="lg">${I.logo?`<img loading="lazy" src="${I.logo}" alt="${nome}"${I.aj?` class="aj" style="${I.aj}"`:''}>`:`<span class="tx">${nome}</span>`}</div>`;
     const tb=`<div class="tb"><b>${nome}</b><span class="qt">${n?`${ICON_DOC}${qtTxt(pub.filter(p=>temaDe(p)===t))}${nv?" · vídeo":""}`:"Em breve"}</span></div>`;
