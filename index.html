@@ -292,6 +292,8 @@ a.tm:focus-visible{outline:none;box-shadow:0 0 0 3px var(--azul)}
 .card .b-man::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit}
 .card .b-ic{position:relative;z-index:2}
 .acts.multi{flex-wrap:wrap}.acts.multi .b-g svg{flex-shrink:0}.acts.multi .b-g{flex:1 1 0;min-width:0;padding-left:6px;padding-right:6px}.acts.multi .brk{flex-basis:100%;height:0}.acts.multi .b-ic{flex:1 1 0;height:40px;width:auto}.b-man.b-sub::after{content:none}.b-man.b-sub{position:relative;z-index:2}
+/* caixa com 4 ou mais jogos (ex.: 6557.6 Jogo 4 x 1): botões dos manuais em 2 por linha */
+.acts.multi.many .b-g{flex:1 1 calc(50% - 4px);line-height:1.15;text-align:center}
 .card:has(.b-man:focus-visible){box-shadow:0 0 0 3px var(--azul)}
 .card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(22,65,148,.12)}
 .card.hl{box-shadow:0 0 0 3px var(--azul),0 16px 36px rgba(22,65,148,.2)}
@@ -326,6 +328,8 @@ a.tm:focus-visible{outline:none;box-shadow:0 0 0 3px var(--azul)}
  .acts{flex-wrap:wrap;gap:6px}
  .b-man{flex:1 1 100%;font-size:13px;padding:9px 6px}
  .b-ic{flex:1;height:38px}
+ .acts.multi.many .b-g{flex:1 1 calc(50% - 3px);font-size:12.5px;gap:4px;padding:9px 4px}
+ .acts.multi.many .b-g svg{display:none}
 }
 
 /* vídeo / toast */
@@ -514,8 +518,8 @@ footer.fx-rod{background:transparent;color:#56648a}footer.fx-rod a{color:#164194
 const REPO    = "inovacaoxalingo/manuais";               /* "dono/repositorio" — preencha se usar domínio próprio (ex.: "inovacaoxalingo/manuais") */
 const MANUAIS = ["21398", "15310", "16232", "15243", "16209", "15509", "28398", "28409", "15565", "15432", "15976", "15965", "27498", "68254", "28354", "68176", "68243", "28187", "28165", "68209", "28510", "15332", "02810", "09765", "09976", "09698", "20610", "20621", "09532", "09865", "09776", "09843", "09954", "09943", "09787", "15576", "04087", "02676", "68232", "09666", "16198", "20798", "09898", "09709", "09987", "09998", "10054", "09355", "10009", "10043", "09809", "10032", "10087", "28509", "60254", "02654", "10209", "10221", "20609", "09568", "09684", "15254", "15443", "68165", "68210", "27487", "15309", "15487", "28532", "09685", "09686", "68143", "68154", "28554", "09332", "09598", "09387", "09454", "21143", "20832", "04421"];
 const FOTOS   = ["21398", "15310", "16232", "15243", "16209", "15509", "28398", "28409", "15565", "15432", "15976", "15965", "27498", "68254", "28354", "68176", "68243", "28187", "28165", "68209", "28510", "15332", "02810", "09765", "09698", "09532", "09843", "09787", "15576", "04087", "02676", "68232", "16198", "20798", "09454", "68143", "68154", "28554", "09686", "09685", "09684", "09568", "02654", "15254", "15443", "68165", "68210", "27487", "15309", "15487", "28532", "10032", "09809", "10043", "10009", "09898", "09709", "09998", "09355", "09356", "09666", "09776", "09865", "09943", "09954", "09976", "09987", "10054", "10087", "10209", "10221", "20609", "20610", "20621", "52821", "28509", "60254", "09332", "09598", "09387", "21143", "20932", "20843", "53265", "53309", "20832", "04421", "12809", "60009", "60065", "60010", "60087", "07821", "65554", "60198", "60210", "65576", "65598", "65543", "54709"];
-const MANUAL_LINK = {"kitfx": "manuais/kit-fixacao/index.html", "65543": "manuais/ludo/index.html", "09356": "manuais/09355/index.html", "12809": "manuais/xadrez/index.html", "60009": "manuais/xadrez/index.html", "60065": "manuais/xadrez/index.html", "60010": "manuais/xadrez/index.html", "60087": "manuais/xadrez/index.html", "07821": "manuais/xadrez/index.html", "65554": "manuais/damas/index.html", "60198": "manuais/damas/index.html", "60210": "manuais/damas/index.html", "65576": "manuais/damas/index.html", "65598": "manuais/damas/index.html", "54709": "manuais/ludo/index.html"};  /* 09356 = mesma montagem do 09355 */  /* manuais que já estão em outro endereço */
-const MULTI = {"60065": [["Xadrez", "manuais/xadrez/index.html"], ["Damas", "manuais/damas/index.html"]], "60210": [["Damas", "manuais/damas/index.html"], ["Ludo", "manuais/ludo/index.html"]], "60198": [["Damas", "manuais/damas/index.html"], ["Trilha", "manuais/trilha/index.html"]], "65576": [["Damas", "manuais/damas/index.html"], ["Ludo", "manuais/ludo/index.html"], ["Trilha", "manuais/trilha/index.html"]], "65598": [["Damas", "manuais/damas/index.html"], ["Ludo", "manuais/ludo/index.html"], ["Trilha", "manuais/trilha/index.html"]]};  /* produto com mais de um jogo: um botão para o manual de cada jogo (gerado de combos.py) */
+const MANUAL_LINK = {"kitfx": "manuais/kit-fixacao/index.html", "65543": "manuais/ludo/index.html", "09356": "manuais/09355/index.html", "12809": "manuais/xadrez/index.html", "60009": "manuais/xadrez/index.html", "60065": "manuais/xadrez/index.html", "60010": "manuais/xadrez/index.html", "60087": "manuais/xadrez/index.html", "07821": "manuais/xadrez/index.html", "65554": "manuais/damas/index.html", "60198": "manuais/damas/index.html", "60210": "manuais/damas/index.html", "65576": "manuais/damas/index.html", "65598": "manuais/damas/index.html", "54709": "manuais/ludo/index.html", "07098": "manuais/varetas/index.html"};  /* 09356 = mesma montagem do 09355 */  /* manuais que já estão em outro endereço */
+const MULTI = {"60065": [["Xadrez", "manuais/xadrez/index.html"], ["Damas", "manuais/damas/index.html"]], "60210": [["Damas", "manuais/damas/index.html"], ["Ludo", "manuais/ludo/index.html"]], "60198": [["Damas", "manuais/damas/index.html"], ["Trilha", "manuais/trilha/index.html"]], "65576": [["Damas", "manuais/damas/index.html"], ["Ludo", "manuais/ludo/index.html"], ["Trilha", "manuais/trilha/index.html"], ["Pega-varetas", "manuais/varetas/index.html"]], "65598": [["Damas", "manuais/damas/index.html"], ["Ludo", "manuais/ludo/index.html"], ["Trilha", "manuais/trilha/index.html"]]};  /* produto com mais de um jogo: um botão para o manual de cada jogo (gerado de combos.py) */
 const SEM_MANUAL = ["68232", "68243"];  /* produto sem manual de montagem nem vídeo: a página só apresenta o produto e mostra as peças (o cartão diz "Ver as peças") */
 const OCULTOS = ["20798"];  /* manual já publicado, mas fora da Central até o lançamento do produto (não aparece no cartão, na busca nem na linha).
                                   No lançamento: tirar a ref daqui e tirar o <meta name="robots" content="noindex"> do manuais/<ref>/index.html. */
@@ -890,7 +894,7 @@ function card(p){
       ${(EXTRAS[c]||vd)?`<div class="badges">${(EXTRAS[c]||[]).map(x=>`<span>${x}</span>`).join("")}${vd?'<span>vídeo</span>':''}</div>`:''}
     </div>
     <div class="cb"><div class="nm">${nomeCurto(p)}</div><div class="sb">${temaDe(p)&&temaDe(p)!=="Outros"?(TEMAS_INFO[temaDe(p)]||{}).completo||temaDe(p):s}</div>${NOTAS[c]?`<div class="nt">${NOTAS[c]}</div>`:''}
-      <div class="acts${MULTI[c]?' multi':''}">
+      <div class="acts${MULTI[c]?' multi'+(MULTI[c].length>3?' many':''):''}">
         ${MULTI[c]?MULTI[c].map((g,i)=>`<a class="b-man b-g${i?' b-sub':''}" href="${g[1]}" title="Manual de ${g[0]}">${ICON_DOC}${g[0]}</a>`).join("")+'<span class="brk"></span>':`<a class="b-man" href="${urlMan(c)}">${SEM_MANUAL.includes(c)?ICON_PECAS+"Ver as peças":ICON_DOC+"Abrir manual"}</a>`}
         ${vd?`<a class="b-ic b-yt" href="${vd}" target="_blank" rel="noopener" title="Vídeo de montagem" aria-label="Vídeo de montagem" onclick="return video(event,'${c}')"><i></i></a>`:''}
         <button class="b-ic" title="Copiar link deste produto" aria-label="Copiar link" onclick="copia('${c}')">${ICON_LINK}</button>
