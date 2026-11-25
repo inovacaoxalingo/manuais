@@ -292,6 +292,7 @@ a.tm:focus-visible{outline:none;box-shadow:0 0 0 3px var(--azul)}
 .card .b-man::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit}
 .card .b-ic{position:relative;z-index:2}
 .acts.multi{flex-wrap:wrap}.acts.multi .b-g svg{flex-shrink:0}.acts.multi .b-g{flex:1 1 0;min-width:0;padding-left:6px;padding-right:6px}.acts.multi .brk{flex-basis:100%;height:0}.acts.multi .b-ic{flex:1 1 0;height:40px;width:auto}.b-man.b-sub::after{content:none}.b-man.b-sub{position:relative;z-index:2}
+
 /* caixa com 4 ou mais jogos (ex.: 6557.6 Jogo 4 x 1): botões dos manuais em 2 por linha */
 .acts.multi.many .b-g{flex:1 1 calc(50% - 4px);line-height:1.15;text-align:center}
 .card:has(.b-man:focus-visible){box-shadow:0 0 0 3px var(--azul)}
@@ -332,6 +333,22 @@ a.tm:focus-visible{outline:none;box-shadow:0 0 0 3px var(--azul)}
  .acts.multi.many .b-g svg{display:none}
 }
 
+/* escolha do jogo nas caixas com vários jogos (MULTI) */
+.chdlg{position:fixed;inset:0;background:rgba(10,20,45,.6);display:none;align-items:center;justify-content:center;z-index:41;padding:16px}
+.chdlg.on{display:flex}
+.chdlg .bx{width:min(420px,100%);background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.chdlg .hd{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.chdlg .hd img{width:64px;height:52px;object-fit:contain;border-radius:10px;background:#f6f3ef}
+.chdlg .hd b{display:block;font:700 16px/1.25 var(--f);color:var(--ink)}
+.chdlg .hd small{font:600 12px var(--f);color:var(--muted)}
+.chdlg .hd button{margin-left:auto;align-self:flex-start;border:none;background:none;font-size:28px;line-height:1;color:var(--muted);cursor:pointer}
+.chdlg .q{margin:14px 16px 8px;font:600 13.5px var(--f);color:var(--muted)}
+.chdlg .ls{display:grid;gap:8px;padding:0 16px 16px}
+.chdlg .ls a{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--azul);color:#fff;text-decoration:none;font:700 15px var(--f)}
+.chdlg .ls a svg{width:18px;height:18px;flex-shrink:0}
+.chdlg .ls a em{margin-left:auto;font-style:normal;font-size:20px;opacity:.8}
+.chdlg .ls a:hover{filter:brightness(1.12)}
+.chdlg .nt{margin:-6px 16px 16px;font:500 12px var(--f);color:var(--muted)}
 /* vídeo / toast */
 .vdlg{position:fixed;inset:0;background:rgba(10,20,45,.84);display:none;align-items:center;justify-content:center;z-index:40;padding:16px}
 .vdlg.on{display:flex}
@@ -504,6 +521,10 @@ footer.fx-rod{background:transparent;color:#56648a}footer.fx-rod a{color:#164194
 <div class="vdlg" id="vdlg" onclick="if(event.target===this)fechaVideo()"><div class="bx">
   <div class="hd"><span id="vdT"></span><button onclick="fechaVideo()" aria-label="Fechar">×</button></div>
   <iframe title="Vídeo de montagem" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+</div></div>
+<div class="chdlg" id="chdlg" onclick="if(event.target===this)fechaEscolha()" role="dialog" aria-modal="true" aria-labelledby="chT"><div class="bx">
+  <div class="hd"><img id="chI" alt=""><div><b id="chT"></b><small id="chR"></small></div><button onclick="fechaEscolha()" aria-label="Fechar">×</button></div>
+  <p class="q" id="chQ"></p><div class="ls" id="chL"></div><p class="nt" id="chN"></p>
 </div></div>
 <div class="toast" id="toast"></div>
 
@@ -894,9 +915,10 @@ function card(p){
       ${(EXTRAS[c]||vd)?`<div class="badges">${(EXTRAS[c]||[]).map(x=>`<span>${x}</span>`).join("")}${vd?'<span>vídeo</span>':''}</div>`:''}
     </div>
     <div class="cb"><div class="nm">${nomeCurto(p)}</div><div class="sb">${temaDe(p)&&temaDe(p)!=="Outros"?(TEMAS_INFO[temaDe(p)]||{}).completo||temaDe(p):s}</div>${NOTAS[c]?`<div class="nt">${NOTAS[c]}</div>`:''}
-      <div class="acts${MULTI[c]?' multi'+(MULTI[c].length>3?' many':''):''}">
-        ${MULTI[c]?MULTI[c].map((g,i)=>`<a class="b-man b-g${i?' b-sub':''}" href="${g[1]}" title="Manual de ${g[0]}">${ICON_DOC}${g[0]}</a>`).join("")+'<span class="brk"></span>':`<a class="b-man" href="${urlMan(c)}">${SEM_MANUAL.includes(c)?ICON_PECAS+"Ver as peças":ICON_DOC+"Abrir manual"}</a>`}
-        ${vd?`<a class="b-ic b-yt" href="${vd}" target="_blank" rel="noopener" title="Vídeo de montagem" aria-label="Vídeo de montagem" onclick="return video(event,'${c}')"><i></i></a>`:''}
+      <div class="acts">
+        ${MULTI[c]?`<a class="b-man" href="${MULTI[c][0][1]}" onclick="return escolhe(event,'${c}')" title="Escolher o jogo">${ICON_DOC}Abrir manual</a>`
+          :`<a class="b-man" href="${urlMan(c)}">${SEM_MANUAL.includes(c)?ICON_PECAS+"Ver as peças":ICON_DOC+"Abrir manual"}</a>`}
+        ${vd&&!MULTI[c]?`<a class="b-ic b-yt" href="${vd}" target="_blank" rel="noopener" title="Vídeo de montagem" aria-label="Vídeo de montagem" onclick="return video(event,'${c}')"><i></i></a>`:''}
         <button class="b-ic" title="Copiar link deste produto" aria-label="Copiar link" onclick="copia('${c}')">${ICON_LINK}</button>
       </div></div>
   </article>`;
@@ -931,6 +953,16 @@ function ytId(u){ const m=(u||"").match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w
 function video(e,c){ const id=ytId(VIDEOS[c]); if(!id) return true; e.preventDefault();
   const p=CATALOGO.find(x=>x[0]===c); $("#vdT").textContent=fmtRef(c)+" · "+p[1];
   $("#vdlg iframe").src="https://www.youtube-nocookie.com/embed/"+id+"?autoplay=1&rel=0"; $("#vdlg").classList.add("on"); return false; }
+function escolhe(e,c){ e.preventDefault(); e.stopPropagation();
+  const p=CATALOGO.find(x=>x[0]===c), g=MULTI[c];
+  $("#chT").textContent=nomeCurto(p); $("#chR").textContent="ref. "+fmtRef(c);
+  const im=$("#chI"); if(temFoto(c)){ im.src=fotoSrc(c); im.style.display=""; } else im.style.display="none";
+  $("#chQ").textContent=`Esta caixa tem ${g.length} jogos. Qual manual você quer abrir?`;
+  $("#chL").innerHTML=g.map(x=>`<a href="${x[1]}">${ICON_DOC}${x[0]}<em>›</em></a>`).join("");
+  $("#chN").textContent=VIDEOS[c]?"O vídeo de cada jogo fica dentro do manual dele.":"";
+  $("#chdlg").classList.add("on"); setTimeout(()=>$("#chL a")?.focus(),30); return false; }
+function fechaEscolha(){ $("#chdlg").classList.remove("on"); }
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") fechaEscolha(); });
 function fechaVideo(){ $("#vdlg").classList.remove("on"); $("#vdlg iframe").src="about:blank"; }
 function copia(c){ const p=CATALOGO.find(x=>x[0]===c); const url=location.href.split("#")[0]+"#"+c;
   (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(()=>toast("Link copiado · ref. "+fmtRef(c)+" "+p[1])).catch(()=>prompt("Copie o link:",url)); }
